@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:title="配置信息" />
+    </android.support.design.widget.AppBarLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:id="@+id/btn_start"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_alignParentBottom="true"
+            android:text="开始" />
+
+        <ScrollView
+            android:id="@+id/login_form"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/btn_start">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/et_from_Station"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="出发站"
+                    android:paddingLeft="10dp"
+                    android:text="杭州"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:id="@+id/et_to_Station"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="到达站"
+                    android:paddingLeft="10dp"
+                    android:text="蕲春"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:id="@+id/et_passenger"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="购票人姓名，多个以英文逗号隔开"
+                    android:paddingLeft="10dp"
+                    android:text="程航"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:id="@+id/et_train_no"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="班次，多个以英文逗号隔开"
+                    android:paddingLeft="10dp"
+                    android:text="K751,G,D,Z"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:id="@+id/et_train_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_below="@id/et_train_no"
+                    android:hint="日期，多个以英文逗号隔开"
+                    android:paddingLeft="10dp"
+                    android:text="2019-01-30,2019-01-31,2019-02-01,2019-02-02"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:id="@+id/et_refresh_interval"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="刷新间隔时间，毫秒"
+                    android:paddingLeft="10dp"
+                    android:text="3000"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:id="@+id/et_timer_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="定时抢票时间"
+                    android:paddingLeft="10dp"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:id="@+id/et_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="通知邮箱，多个以英文逗号隔开"
+                    android:paddingLeft="10dp"
+                    android:text="745440793@qq.com,894474628@qq.com"
+                    android:textSize="15sp" />
+
+                <FrameLayout
+                    android:id="@+id/fl_fragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+        </ScrollView>
+    </RelativeLayout>
+</LinearLayout>
