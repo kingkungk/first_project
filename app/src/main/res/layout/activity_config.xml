@@ -48,7 +48,7 @@
                     android:layout_height="50dp"
                     android:hint="出发站"
                     android:paddingLeft="10dp"
-                    android:text="杭州"
+                    android:text="@string/from_Station"
                     android:textSize="15sp" />
 
                 <EditText
@@ -57,7 +57,7 @@
                     android:layout_height="50dp"
                     android:hint="到达站"
                     android:paddingLeft="10dp"
-                    android:text="蕲春"
+                    android:text="@string/to_Station"
                     android:textSize="15sp" />
 
                 <EditText
@@ -66,7 +66,7 @@
                     android:layout_height="50dp"
                     android:hint="购票人姓名，多个以英文逗号隔开"
                     android:paddingLeft="10dp"
-                    android:text="程航"
+                    android:text="@string/passenger"
                     android:textSize="15sp" />
 
                 <EditText
@@ -75,7 +75,7 @@
                     android:layout_height="50dp"
                     android:hint="班次，多个以英文逗号隔开"
                     android:paddingLeft="10dp"
-                    android:text="K751,G,D,Z"
+                    android:text="@string/train_no"
                     android:textSize="15sp" />
 
                 <EditText
@@ -85,7 +85,7 @@
                     android:layout_below="@id/et_train_no"
                     android:hint="日期，多个以英文逗号隔开"
                     android:paddingLeft="10dp"
-                    android:text="2019-01-30,2019-01-31,2019-02-01,2019-02-02"
+                    android:text="@string/train_date"
                     android:textSize="15sp" />
 
                 <EditText
@@ -94,7 +94,7 @@
                     android:layout_height="50dp"
                     android:hint="刷新间隔时间，毫秒"
                     android:paddingLeft="10dp"
-                    android:text="3000"
+                    android:text="@string/refresh_interval"
                     android:textSize="15sp" />
 
                 <EditText
@@ -111,7 +111,7 @@
                     android:layout_height="50dp"
                     android:hint="通知邮箱，多个以英文逗号隔开"
                     android:paddingLeft="10dp"
-                    android:text="745440793@qq.com,894474628@qq.com"
+                    android:text="@string/email"
                     android:textSize="15sp" />
 
                 <FrameLayout

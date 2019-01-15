@@ -31,10 +31,30 @@ android {
         mh {
             applicationId 'com.kingkung.train1'
             resValue "string", "app_name", "麻城-杭州"
+            resValue "string", "phone", "13857715526"
+            resValue "string", "password", ""
+
+            resValue "string", "from_Station", "麻城"
+            resValue "string", "to_Station", "杭州"
+            resValue "string", "passenger", "程航"
+            resValue "string", "train_no", "D"
+            resValue "string", "train_date", "2019-02-12"
+            resValue "string", "refresh_interval", "3000"
+            resValue "string", "email", "745440793@qq.com,894474628@qq.com"
         }
         hq {
             applicationId 'com.kingkung.train2'
             resValue "string", "app_name", "杭州-蕲春"
+            resValue "string", "phone", "18257177261"
+            resValue "string", "password", ""
+
+            resValue "string", "from_Station", "杭州"
+            resValue "string", "to_Station", "蕲春"
+            resValue "string", "passenger", "程航"
+            resValue "string", "train_no", "K751,G,D,Z"
+            resValue "string", "train_date", "2019-01-30,2019-01-31,2019-02-01,2019-02-02"
+            resValue "string", "refresh_interval", "3000"
+            resValue "string", "email", "745440793@qq.com,894474628@qq.com"
         }
     }
     lintOptions {

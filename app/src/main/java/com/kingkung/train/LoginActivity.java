@@ -59,7 +59,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Loade
     };
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private AutoCompleteTextView mPhoneView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
@@ -72,8 +72,6 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Loade
 
     private String userName;
     private String password;
-
-    private String sendEmail;
 
     @Override
     protected void inject() {
@@ -88,7 +86,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Loade
     @Override
     protected void create() {
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mPhoneView = (AutoCompleteTextView) findViewById(R.id.phone);
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -168,7 +166,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Loade
             return true;
         }
 //        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-//            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
+//            Snackbar.make(mPhoneView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
 //                    .setAction(android.R.string.ok, new View.OnClickListener() {
 //                        @Override
 //                        @TargetApi(Build.VERSION_CODES.M)
@@ -203,11 +201,11 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Loade
      */
     private void attemptLogin() {
         // Reset errors.
-        mEmailView.setError(null);
+        mPhoneView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        userName = mEmailView.getText().toString();
+        userName = mPhoneView.getText().toString();
         password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -222,12 +220,12 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Loade
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(userName)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
+            mPhoneView.setError(getString(R.string.error_field_required));
+            focusView = mPhoneView;
             cancel = true;
         } else if (!isEmailValid(userName)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+            mPhoneView.setError(getString(R.string.error_invalid_email));
+            focusView = mPhoneView;
             cancel = true;
         }
 
@@ -329,7 +327,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Loade
                 new ArrayAdapter<>(LoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
-        mEmailView.setAdapter(adapter);
+        mPhoneView.setAdapter(adapter);
     }
 
     @Override

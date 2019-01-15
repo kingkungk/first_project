@@ -59,7 +59,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     private String leaveStartDate = "7:30";
     private long leaveStartTime;
     //选择车次的结束时间
-    private String leaveEndDate = "17:00";
+    private String leaveEndDate = "18:00";
     private long leaveEndTime;
     //座位类别,如果为空就不过滤
     private List<SeatType> seatType = Arrays.asList(SeatType.HARD_SLEEP, SeatType.HARD_SEAT, SeatType.SECOND_CLASS);

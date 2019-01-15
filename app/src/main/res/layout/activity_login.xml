@@ -45,7 +45,7 @@
             android:layout_height="match_parent">
 
             <LinearLayout
-                android:id="@+id/email_login_form"
+                android:id="@+id/phone_login_form"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -55,14 +55,14 @@
                     android:layout_height="wrap_content">
 
                     <AutoCompleteTextView
-                        android:id="@+id/email"
+                        android:id="@+id/phone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="帐号"
                         android:inputType="textEmailAddress"
                         android:maxLines="1"
                         android:singleLine="true"
-                        android:text="18257177261" />
+                        android:text="@string/phone" />
 
                 </android.support.design.widget.TextInputLayout>
 
@@ -81,7 +81,7 @@
                         android:inputType="textPassword"
                         android:maxLines="1"
                         android:singleLine="true"
-                        android:text="chenghang123" />
+                        android:text="@string/password" />
 
                 </android.support.design.widget.TextInputLayout>
 
