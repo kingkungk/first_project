@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.app.LoaderManager.LoaderCallbacks;
 
 import android.content.CursorLoader;
@@ -348,9 +347,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Loade
 
     @Override
     public void loginSuccess() {
-        Intent intent = new Intent(this, ConfigActivity.class);
-        intent.putExtra("isTrainActivity", false);
-        startActivity(intent);
+        setResult(100, new Intent(this, ConfigActivity.class));
         finish();
     }
 

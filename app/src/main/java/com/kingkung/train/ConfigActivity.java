@@ -74,7 +74,7 @@ public class ConfigActivity extends BaseActivity<EmptyPresenter> implements Empt
         intent.putStringArrayListExtra("send_email",
                 new ArrayList<>(Arrays.asList(etEmail.getText().toString().split(","))));
         if (isTrainActivity) {
-            setResult(100, intent);
+            setResult(200, intent);
             finish();
         } else {
             startActivity(intent);

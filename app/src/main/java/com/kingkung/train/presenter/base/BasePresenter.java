@@ -31,6 +31,7 @@ public class BasePresenter<T extends BaseContract.View> implements BaseContract.
     protected void dispose() {
         if (mCompositeDisposable != null) {
             mCompositeDisposable.dispose();
+            mCompositeDisposable = null;
         }
     }
 }

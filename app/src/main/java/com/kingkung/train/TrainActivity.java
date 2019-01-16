@@ -156,8 +156,8 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
 
     @Override
     public void uamtkFaild() {
-        startActivity(new Intent(this, LoginActivity.class));
-        finish();
+        presenter.detachView();
+        startActivityForResult(new Intent(this, LoginActivity.class), 100);
     }
 
     @Override
@@ -367,6 +367,11 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_config) {
+            count = 1;
+            isStartQuery = true;
+            messageAdapter.clear();
+
+            presenter.detachView();
             Intent intent = new Intent(this, ConfigActivity.class);
             intent.putExtra("isTrainActivity", true);
             startActivityForResult(intent, 100);
@@ -378,9 +383,17 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 100 && resultCode == 100) {
-            initIntent(data);
-            presenter.detachView();
+        if (requestCode == 100) {
+            if (resultCode == 200) {
+                initIntent(data);
+            }
+            presenter.attachView(this);
+            presenter.interval(0, refreshLoginInterval, new Runnable() {
+                @Override
+                public void run() {
+                    presenter.uamtk();
+                }
+            });
         }
     }
 
