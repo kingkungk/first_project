@@ -56,6 +56,20 @@ android {
             resValue "string", "refresh_interval", "3000"
             resValue "string", "email", "745440793@qq.com,894474628@qq.com"
         }
+        lk {
+            applicationId 'com.kingkung.train3'
+            resValue "string", "app_name", "杭州-武穴"
+            resValue "string", "phone", "15700015302"
+            resValue "string", "password", ""
+
+            resValue "string", "from_Station", "杭州"
+            resValue "string", "to_Station", "武穴"
+            resValue "string", "passenger", "刘锴"
+            resValue "string", "train_no", "K751,G,D,Z"
+            resValue "string", "train_date", "2019-02-01,2019-02-02"
+            resValue "string", "refresh_interval", "3000"
+            resValue "string", "email", "767254834@qq.com"
+        }
     }
     lintOptions {
         disable 'GoogleAppIndexingWarning'

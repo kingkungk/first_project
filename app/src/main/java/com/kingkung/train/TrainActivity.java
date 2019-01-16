@@ -164,10 +164,10 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     public void uamauthClientSuccess(String username) {
         setTitle(username);
         if (!isStartQuery) {
-            isStartQuery = false;
             return;
         }
         try {
+            isStartQuery = false;
             long timer;
             long timerTime = timerDateFormat.parse(timerDate).getTime();
             long curTime = System.currentTimeMillis();
@@ -222,7 +222,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
             return;
         }
         textToSpeech.speak("查询到可买的票，将会帮你自动提交订单", TextToSpeech.QUEUE_FLUSH, null);
-        presenter.sendEmail(sendEmails, "抢票", "查询到可买的票");
+        presenter.sendEmail(sendEmails, "标题1", "查询到可买的票");
         for (TrainDetails detail : result) {
             messageAdapter.add("车次:" + detail.trainNo + "\t\t可买票类型:" +
                     detail.seatTypes.toString() + "\t\t张数:" + detail.count);
@@ -277,7 +277,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     @Override
     public void confirmSingleForQueueSuccess(TrainDetails detail) {
         textToSpeech.speak("订单排队中，请等待，或者去12306上查看排队订单", TextToSpeech.QUEUE_FLUSH, null);
-        presenter.sendEmail(sendEmails, "抢票", "订单排队中");
+        presenter.sendEmail(sendEmails, "标题2", "订单排队中");
         presenter.queryOrderWaitTime(detail);
     }
 
@@ -289,7 +289,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     @Override
     public void resultOrderForQueueSuccess() {
         textToSpeech.speak("订单提交成功，请去12306上立即支付", TextToSpeech.QUEUE_FLUSH, null);
-        presenter.sendEmail(sendEmails, "抢票", "订单提交成功");
+        presenter.sendEmail(sendEmails, "标题3", "订单提交成功");
         presenter.detachView();
     }
 
@@ -330,15 +330,15 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
         List<SeatType> copySeatType = new ArrayList<>(seatType);
         for (int i = 0; i < copySeatType.size(); i++) {
             SeatType type = copySeatType.get(i);
-            if (type == SeatType.HARD_SLEEP && !TextUtils.isEmpty(detail.hardSeat)
-                    && !"无".equals(detail.hardSeat) && !"*".equals(detail.hardSeat)) {
-                detail.seatTypes.add(SeatType.HARD_SLEEP);
-                detail.count = detail.hardSeat;
-            }
-            if (type == SeatType.HARD_SEAT && !TextUtils.isEmpty(detail.hardSleep)
+            if (type == SeatType.HARD_SLEEP && !TextUtils.isEmpty(detail.hardSleep)
                     && !"无".equals(detail.hardSleep) && !"*".equals(detail.hardSleep)) {
-                detail.seatTypes.add(SeatType.HARD_SEAT);
+                detail.seatTypes.add(SeatType.HARD_SLEEP);
                 detail.count = detail.hardSleep;
+            }
+            if (type == SeatType.HARD_SEAT && !TextUtils.isEmpty(detail.hardSeat)
+                    && !"无".equals(detail.hardSeat) && !"*".equals(detail.hardSeat)) {
+                detail.seatTypes.add(SeatType.HARD_SEAT);
+                detail.count = detail.hardSeat;
             }
             if (type == SeatType.SECOND_CLASS && !TextUtils.isEmpty(detail.secondClassSeat)
                     && !"无".equals(detail.secondClassSeat) && !"*".equals(detail.secondClassSeat)) {
