@@ -1,6 +1,9 @@
 package com.kingkung.train;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.widget.EditText;
@@ -35,6 +38,8 @@ public class ConfigActivity extends BaseActivity<EmptyPresenter> implements Empt
     @BindView(R.id.et_email)
     EditText etEmail;
 
+    private SharedPreferences configPreferences;
+
     private boolean isTrainActivity;
 
     @Override
@@ -55,11 +60,34 @@ public class ConfigActivity extends BaseActivity<EmptyPresenter> implements Empt
                 .replace(R.id.fl_fragment, new ConfigFragment())
                 .commit();
 
+        configPreferences = getSharedPreferences("configData", Context.MODE_PRIVATE);
+        initViewData();
         etTimerDate.setText(TrainActivity.timerDateFormat.format(new Date()));
+    }
+
+    private void initViewData() {
+        Resources resources = getResources();
+        etFromStation.setText(configPreferences.getString("from_station", resources.getString(R.string.from_Station)));
+        etToStation.setText(configPreferences.getString("to_station", resources.getString(R.string.to_Station)));
+        etPassenger.setText(configPreferences.getString("passenger_name", resources.getString(R.string.passenger)));
+        etTrainNo.setText(configPreferences.getString("train_no", resources.getString(R.string.train_no)));
+        etTrainDate.setText(configPreferences.getString("train_date", resources.getString(R.string.train_date)));
+        etRefreshInterval.setText(configPreferences.getString("refresh_interval", resources.getString(R.string.refresh_interval)));
+        etEmail.setText(configPreferences.getString("send_email", resources.getString(R.string.email)));
     }
 
     @OnClick(R.id.btn_start)
     public void start() {
+        SharedPreferences.Editor editor = configPreferences.edit();
+        editor.putString("from_station", etFromStation.getText().toString());
+        editor.putString("to_station", etToStation.getText().toString());
+        editor.putString("passenger_name", etPassenger.getText().toString());
+        editor.putString("train_no", etTrainNo.getText().toString());
+        editor.putString("train_date", etTrainDate.getText().toString());
+        editor.putString("refresh_interval", etRefreshInterval.getText().toString());
+        editor.putString("send_email", etEmail.getText().toString());
+        editor.apply();
+
         Intent intent = new Intent(this, TrainActivity.class);
         intent.putExtra("from_station", etFromStation.getText().toString());
         intent.putExtra("to_station", etToStation.getText().toString());
@@ -75,10 +103,10 @@ public class ConfigActivity extends BaseActivity<EmptyPresenter> implements Empt
                 new ArrayList<>(Arrays.asList(etEmail.getText().toString().split(","))));
         if (isTrainActivity) {
             setResult(200, intent);
-            finish();
         } else {
             startActivity(intent);
         }
+        finish();
     }
 
     public static class ConfigFragment extends PreferenceFragment {
