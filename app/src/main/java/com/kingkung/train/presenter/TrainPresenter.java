@@ -50,12 +50,18 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 public class TrainPresenter extends BasePresenter<TrainContract.View> implements TrainContract.Presenter {
+    private Subject<Integer> backSubject = PublishSubject.create();
 
     private TrainApi api;
 
@@ -66,6 +72,48 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
     @Inject
     public TrainPresenter(TrainApi api) {
         this.api = api;
+        listenBackEvent(backSubject);
+    }
+
+    @Override
+    public void clickBack() {
+        backSubject.onNext(1);
+    }
+
+    public void listenBackEvent(Subject<Integer> back) {
+        Disposable disposable = Observable.merge(back, back.debounce(2000, TimeUnit.MILLISECONDS)
+                .map(new Function<Integer, Integer>() {
+                    @Override
+                    public Integer apply(Integer i) throws Exception {
+                        return 0;
+                    }
+                }))
+                .scan(new BiFunction<Integer, Integer, Integer>() {
+                    @Override
+                    public Integer apply(Integer integer, Integer integer2) throws Exception {
+                        if (integer2 == 0) {
+                            return 0;
+                        }
+                        return integer + 1;
+                    }
+                })
+                .filter(new Predicate<Integer>() {
+                    @Override
+                    public boolean test(Integer integer) throws Exception {
+                        return integer > 0;
+                    }
+                })
+                .subscribe(new Consumer<Integer>() {
+                    @Override
+                    public void accept(Integer integer) throws Exception {
+                        if (integer == 1) {
+                            mView.showMsg("再按一次退出程序");
+                        } else if (integer == 2) {
+                            mView.realBack();
+                        }
+                    }
+                });
+        addSubscription(disposable);
     }
 
     @Override

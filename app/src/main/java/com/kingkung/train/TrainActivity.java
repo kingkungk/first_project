@@ -5,6 +5,7 @@ import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -145,6 +146,21 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
             e.printStackTrace();
         }
         sendEmails = intent.getStringArrayListExtra("send_email");
+    }
+
+    @Override
+    public void realBack() {
+        onBackPressed();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            presenter.clickBack();
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 
     @Override

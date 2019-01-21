@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface TrainContract {
     interface View extends BaseContract.View {
+        void realBack();
+
         void uamtkSuccess(String newapptk);
 
         void uamtkFaild();
@@ -35,6 +37,8 @@ public interface TrainContract {
     }
 
     interface Presenter extends BaseContract.Presenter<View> {
+        void clickBack();
+
         void interval(long initialDelay, long period, Runnable r);
 
         void timer(long delay, Runnable r);
