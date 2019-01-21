@@ -31,6 +31,8 @@ public class ConfigActivity extends BaseActivity<EmptyPresenter> implements Empt
     EditText etTrainNo;
     @BindView(R.id.et_train_date)
     EditText etTrainDate;
+    @BindView(R.id.et_start_time_quantum)
+    EditText etStartTimeQuantum;
     @BindView(R.id.et_refresh_interval)
     EditText etRefreshInterval;
     @BindView(R.id.et_timer_date)
@@ -72,6 +74,7 @@ public class ConfigActivity extends BaseActivity<EmptyPresenter> implements Empt
         etPassenger.setText(configPreferences.getString("passenger_name", resources.getString(R.string.passenger)));
         etTrainNo.setText(configPreferences.getString("train_no", resources.getString(R.string.train_no)));
         etTrainDate.setText(configPreferences.getString("train_date", resources.getString(R.string.train_date)));
+        etStartTimeQuantum.setText(configPreferences.getString("start_time_quantum", resources.getString(R.string.start_time_quantum)));
         etRefreshInterval.setText(configPreferences.getString("refresh_interval", resources.getString(R.string.refresh_interval)));
         etEmail.setText(configPreferences.getString("send_email", resources.getString(R.string.email)));
     }
@@ -85,6 +88,7 @@ public class ConfigActivity extends BaseActivity<EmptyPresenter> implements Empt
         editor.putString("train_no", etTrainNo.getText().toString());
         editor.putString("train_date", etTrainDate.getText().toString());
         editor.putString("refresh_interval", etRefreshInterval.getText().toString());
+        editor.putString("start_time_quantum", etStartTimeQuantum.getText().toString());
         editor.putString("send_email", etEmail.getText().toString());
         editor.apply();
 
@@ -98,6 +102,8 @@ public class ConfigActivity extends BaseActivity<EmptyPresenter> implements Empt
         intent.putStringArrayListExtra("train_date",
                 new ArrayList<>(Arrays.asList(etTrainDate.getText().toString().split(","))));
         intent.putExtra("refresh_interval", etRefreshInterval.getText().toString());
+        intent.putStringArrayListExtra("start_time_quantum",
+                new ArrayList<>(Arrays.asList(etStartTimeQuantum.getText().toString().split("-"))));
         intent.putExtra("timer_date", etTimerDate.getText().toString());
         intent.putStringArrayListExtra("send_email",
                 new ArrayList<>(Arrays.asList(etEmail.getText().toString().split(","))));

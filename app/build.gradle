@@ -9,7 +9,10 @@ android {
         versionCode 1
         versionName "1.0"
         flavorDimensions "base"
+
         resValue "string", "app_name", "抢票"
+        resValue "string", "start_time_quantum", "7:30-18:00"
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {

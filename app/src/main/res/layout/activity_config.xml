@@ -98,6 +98,14 @@
                     android:textSize="15sp" />
 
                 <EditText
+                    android:id="@+id/et_start_time_quantum"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="出发时间段"
+                    android:paddingLeft="10dp"
+                    android:textSize="15sp" />
+
+                <EditText
                     android:id="@+id/et_timer_date"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"

@@ -36,8 +36,8 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
 
     private int count = 1;
 
-    private SimpleDateFormat leaveDateFormat = new SimpleDateFormat("HH:mm");
-    public static SimpleDateFormat timerDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private SimpleDateFormat timeQuantumDateFormat = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
+    public static SimpleDateFormat timerDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH);
 
     private TextToSpeech textToSpeech;
 
@@ -46,27 +46,23 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     //刷新登录会话
     private int refreshLoginInterval = 1000 * 60 * 5;
     //出发站
-    private String fromStation = "";
+    private String fromStation;
     //到达站
-    private String toStation = "";
+    private String toStation;
     // 车次，如果为空就不过滤
-    private List<String> trainNo = Arrays.asList();
+    private List<String> trainNo;
     //乘车日期
-    private List<String> trainDate = Arrays.asList();
+    private List<String> trainDate;
     //乘车人姓名
-    private List<String> passengerNames = Arrays.asList();
-    //选择车次的起始时间
-    private String leaveStartDate = "7:30";
-    private long leaveStartTime;
-    //选择车次的结束时间
-    private String leaveEndDate = "18:00";
-    private long leaveEndTime;
+    private List<String> passengerNames;
+    //出发时间段
+    private List<Long> startTimeQuantum = new ArrayList<>(2);
     //座位类别,如果为空就不过滤
     private List<SeatType> seatType = Arrays.asList(SeatType.HARD_SLEEP, SeatType.HARD_SEAT, SeatType.SECOND_CLASS);
     //定时抢票时间
-    private String timerDate = "";
+    private long timerTime;
     //接受通知的邮箱
-    private List<String> sendEmails = Arrays.asList();
+    private List<String> sendEmails;
 
     private boolean isStartQuery = true;
 
@@ -107,13 +103,6 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
 
         initIntent(getIntent());
 
-        try {
-            leaveStartTime = leaveDateFormat.parse(leaveStartDate).getTime();
-            leaveEndTime = leaveDateFormat.parse(leaveEndDate).getTime();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
         messageAdapter = new ArrayAdapter<>(this, R.layout.item_message);
         listView.setAdapter(messageAdapter);
 
@@ -145,7 +134,16 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
         trainNo = intent.getStringArrayListExtra("train_no");
         trainDate = intent.getStringArrayListExtra("train_date");
         refreshQueryInterval = Integer.parseInt(intent.getStringExtra("refresh_interval"));
-        timerDate = intent.getStringExtra("timer_date");
+        try {
+            List<String> startTimeQuantumStr = intent.getStringArrayListExtra("start_time_quantum");
+            startTimeQuantum.add(timeQuantumDateFormat.parse(startTimeQuantumStr.get(0)).getTime());
+            startTimeQuantum.add(timeQuantumDateFormat.parse(startTimeQuantumStr.get(1)).getTime());
+
+            String timerTimeStr = intent.getStringExtra("timer_date");
+            timerTime = timerDateFormat.parse(timerTimeStr).getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         sendEmails = intent.getStringArrayListExtra("send_email");
     }
 
@@ -167,27 +165,22 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
         if (!isStartQuery) {
             return;
         }
-        try {
-            isStartQuery = false;
-            long timer;
-            long timerTime = timerDateFormat.parse(timerDate).getTime();
-            long curTime = System.currentTimeMillis();
-            if (timerTime <= curTime) {
-                timer = 0;
-            } else {
-                timer = timerTime - curTime + 50;
-            }
-            presenter.interval(timer, refreshQueryInterval, new Runnable() {
-                @Override
-                public void run() {
-                    for (String date : trainDate) {
-                        presenter.queryTrain(date, fromStation, toStation);
-                    }
-                }
-            });
-        } catch (ParseException e) {
-            e.printStackTrace();
+        isStartQuery = false;
+        long timer;
+        long curTime = System.currentTimeMillis();
+        if (timerTime <= curTime) {
+            timer = 0;
+        } else {
+            timer = timerTime - curTime;
         }
+        presenter.interval(timer, refreshQueryInterval, new Runnable() {
+            @Override
+            public void run() {
+                for (String date : trainDate) {
+                    presenter.queryTrain(date, fromStation, toStation);
+                }
+            }
+        });
     }
 
     @Override
@@ -314,8 +307,8 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
 
     public boolean filterLeaveTime(TrainDetails detail) {
         try {
-            long leaveTime = leaveDateFormat.parse(detail.leaveTime).getTime();
-            if (leaveTime < leaveStartTime || leaveTime > leaveEndTime) {
+            long leaveTime = timeQuantumDateFormat.parse(detail.leaveTime).getTime();
+            if (leaveTime < startTimeQuantum.get(0) || leaveTime > startTimeQuantum.get(1)) {
                 return true;
             }
         } catch (ParseException e) {
