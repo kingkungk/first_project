@@ -4,9 +4,9 @@ public interface BaseContract {
     interface View {
         void showMsg(String msg);
 
-        void complete();
+        void failed(String failedMsg);
 
-        void gotoSignIn();
+        void complete();
     }
 
     interface Presenter<T extends View> {

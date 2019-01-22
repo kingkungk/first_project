@@ -1,5 +1,7 @@
 package com.kingkung.train.contract;
 
+import android.content.Context;
+
 import com.kingkung.train.bean.TrainDetails;
 import com.kingkung.train.contract.base.BaseContract;
 
@@ -68,5 +70,7 @@ public interface TrainContract {
         void queryOrderWaitTime(TrainDetails detail);
 
         void resultOrderForQueue(TrainDetails detail);
+
+        void writeFailedLog(Context context, String failedMsg);
     }
 }

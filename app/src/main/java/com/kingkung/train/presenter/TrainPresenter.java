@@ -1,5 +1,6 @@
 package com.kingkung.train.presenter;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
@@ -11,7 +12,6 @@ import com.kingkung.train.bean.PassengerForm;
 import com.kingkung.train.bean.PassengerInfo;
 import com.kingkung.train.bean.QueryOrderWaitTimeData;
 import com.kingkung.train.bean.QueueCountData;
-import com.kingkung.train.bean.ResultOrderForQueueData;
 import com.kingkung.train.bean.SubmitStatusData;
 import com.kingkung.train.bean.TrainData;
 import com.kingkung.train.bean.TrainDetails;
@@ -26,6 +26,9 @@ import com.kingkung.train.contract.TrainContract;
 import com.kingkung.train.presenter.base.BasePresenter;
 import com.kingkung.train.utils.City2Code;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -533,11 +536,13 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                 .subscribeWith(new MessageListObserver<QueryOrderWaitTimeData>(mView) {
                     @Override
                     public void success(QueryOrderWaitTimeData data) {
-                        long waitTime = Long.parseLong(data.waitTime);
-                        if (waitTime < 0) {
+                        long waitTime = data.waitTime;
+                        if (waitTime <= 0) {
                             if (!TextUtils.isEmpty(data.orderId)) {
                                 detail.orderId = data.orderId;
                                 mView.queryOrderWaitTimeSuccess(detail);
+                            } else if (!TextUtils.isEmpty(data.msg)) {
+                                mView.failed(data.msg);
                             }
                         } else {
                             timer(1000, new Runnable() {
@@ -561,15 +566,33 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
         Disposable disposable = api.resultOrderForQueue(fields)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new MessageListObserver<ResultOrderForQueueData>(mView) {
+                .subscribeWith(new MessageListObserver<SubmitStatusData>(mView) {
                     @Override
-                    public void success(ResultOrderForQueueData data) {
-                        boolean submitStatus = Boolean.parseBoolean(data.submitStatus);
-                        if (submitStatus) {
-                            mView.resultOrderForQueueSuccess();
-                        }
+                    public void success(SubmitStatusData data) {
+                        mView.resultOrderForQueueSuccess();
                     }
                 });
+        addSubscription(disposable);
+    }
+
+    @Override
+    public void writeFailedLog(final Context context, final String failedMsg) {
+        Disposable disposable = Observable.create(new ObservableOnSubscribe<Boolean>() {
+            @Override
+            public void subscribe(ObservableEmitter<Boolean> emitter) throws Exception {
+                File logFile = new File(context.getCacheDir(), "log.txt");
+                if (!logFile.exists()) {
+                    logFile.createNewFile();
+                }
+                BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true));
+                bw.write(failedMsg + "\r\n");
+                bw.flush();
+                emitter.onNext(true);
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new EmptyObserver());
         addSubscription(disposable);
     }
 }

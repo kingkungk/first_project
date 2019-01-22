@@ -15,6 +15,7 @@ import com.kingkung.train.bean.PassengerInfo;
 import com.kingkung.train.bean.TrainDetails;
 import com.kingkung.train.contract.TrainContract;
 import com.kingkung.train.presenter.TrainPresenter;
+import com.kingkung.train.ui.activity.FailedLogActivity;
 import com.kingkung.train.ui.activity.base.BaseActivity;
 
 import java.text.ParseException;
@@ -387,7 +388,8 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
             Intent intent = new Intent(this, ConfigActivity.class);
             intent.putExtra("isTrainActivity", true);
             startActivityForResult(intent, 100);
-            return true;
+        } else if (id == R.id.failed_msg) {
+            startActivity(new Intent(this, FailedLogActivity.class));
         }
         return super.onOptionsItemSelected(item);
     }
@@ -417,5 +419,11 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
         super.onDestroy();
         textToSpeech.stop();
         textToSpeech.shutdown();
+    }
+
+    @Override
+    public void failed(String failedMsg) {
+        super.failed(failedMsg);
+        presenter.writeFailedLog(this, failedMsg);
     }
 }

@@ -60,12 +60,12 @@ public abstract class BaseActivity<P extends BaseContract.Presenter> extends App
     }
 
     @Override
-    public void complete() {
-
+    public void failed(String failedMsg) {
+        showMsg(failedMsg);
     }
 
     @Override
-    public void gotoSignIn() {
+    public void complete() {
 
     }
 

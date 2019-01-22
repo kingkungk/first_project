@@ -3,6 +3,7 @@ package com.kingkung.train.component;
 import com.kingkung.train.ConfigActivity;
 import com.kingkung.train.LoginActivity;
 import com.kingkung.train.TrainActivity;
+import com.kingkung.train.ui.activity.FailedLogActivity;
 import com.kingkung.train.ui.activity.MainActivity;
 
 import dagger.Component;
@@ -16,4 +17,6 @@ public interface ActivityComponent {
     void inject(TrainActivity trainActivity);
 
     void inject(ConfigActivity configActivity);
+
+    void inject(FailedLogActivity failedLogActivity);
 }

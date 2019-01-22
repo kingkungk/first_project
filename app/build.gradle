@@ -31,6 +31,20 @@ android {
         }
     }
     productFlavors {
+        common {
+            applicationId 'com.kingkung.train.common'
+            resValue "string", "app_name", "抢票"
+            resValue "string", "phone", ""
+            resValue "string", "password", ""
+
+            resValue "string", "from_Station", ""
+            resValue "string", "to_Station", ""
+            resValue "string", "passenger", ""
+            resValue "string", "train_no", ""
+            resValue "string", "train_date", ""
+            resValue "string", "refresh_interval", ""
+            resValue "string", "email", ""
+        }
         mh {
             applicationId 'com.kingkung.train1'
             resValue "string", "app_name", "麻城-杭州"

@@ -6,7 +6,6 @@ import com.kingkung.train.bean.MessageReslut;
 import com.kingkung.train.bean.PassengerInfo;
 import com.kingkung.train.bean.QueryOrderWaitTimeData;
 import com.kingkung.train.bean.QueueCountData;
-import com.kingkung.train.bean.ResultOrderForQueueData;
 import com.kingkung.train.bean.SubmitStatusData;
 import com.kingkung.train.bean.TrainData;
 import com.kingkung.train.bean.Result;
@@ -80,5 +79,5 @@ public interface TrainApi {
 
     @POST(Urls.RESULT_ORDER_FOR_QUEUE)
     @FormUrlEncoded
-    Observable<MessageListReslut<ResultOrderForQueueData>> resultOrderForQueue(@FieldMap Map<String, String> fields);
+    Observable<MessageListReslut<SubmitStatusData>> resultOrderForQueue(@FieldMap Map<String, String> fields);
 }
