@@ -1,4 +1,4 @@
-package com.kingkung.train.bean.response;
+package com.kingkung.train.bean;
 
 public class UserNameResult extends Result {
     private String username;

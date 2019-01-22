@@ -1,16 +1,17 @@
 package com.kingkung.train.api;
 
 import com.kingkung.train.bean.CheckOrderData;
-import com.kingkung.train.bean.ConfirmSingleForQueueData;
+import com.kingkung.train.bean.MessageListReslut;
+import com.kingkung.train.bean.MessageReslut;
 import com.kingkung.train.bean.PassengerInfo;
 import com.kingkung.train.bean.QueryOrderWaitTimeData;
 import com.kingkung.train.bean.QueueCountData;
 import com.kingkung.train.bean.ResultOrderForQueueData;
-import com.kingkung.train.bean.StatusResult;
+import com.kingkung.train.bean.SubmitStatusData;
 import com.kingkung.train.bean.TrainData;
-import com.kingkung.train.bean.response.Result;
-import com.kingkung.train.bean.response.UamtkResult;
-import com.kingkung.train.bean.response.UserNameResult;
+import com.kingkung.train.bean.Result;
+import com.kingkung.train.bean.UamtkResult;
+import com.kingkung.train.bean.UserNameResult;
 
 import java.util.Map;
 
@@ -22,7 +23,6 @@ import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.HeaderMap;
 import retrofit2.http.POST;
 import retrofit2.http.QueryMap;
 
@@ -47,38 +47,38 @@ public interface TrainApi {
     Observable<UserNameResult> uamauthClient(@FieldMap Map<String, String> fields);
 
     @GET(Urls.QUERY_TRAIN)
-    Observable<StatusResult<TrainData>> queryTrain(@QueryMap Map<String, String> fields);
+    Observable<MessageReslut<TrainData>> queryTrain(@QueryMap Map<String, String> fields);
 
     @POST(Urls.CHECK_USER)
     @FormUrlEncoded
-    Observable<StatusResult<Object>> checkUser(@FieldMap Map<String, String> fields);
+    Observable<MessageListReslut<Object>> checkUser(@FieldMap Map<String, String> fields);
 
     @POST(Urls.SUBMIT_ORDER)
-    Observable<StatusResult<Object>> submitOrder(@Body RequestBody body);
+    Observable<MessageListReslut<Object>> submitOrder(@Body RequestBody body);
 
     @GET(Urls.INIT_DC)
     Observable<String> initDc(@QueryMap Map<String, String> fields);
 
     @POST(Urls.GET_PASSENGER)
     @FormUrlEncoded
-    Observable<StatusResult<PassengerInfo.PassengerData>> getPassenger(@FieldMap Map<String, String> fields);
+    Observable<MessageListReslut<PassengerInfo.PassengerData>> getPassenger(@FieldMap Map<String, String> fields);
 
     @POST(Urls.CHECK_ORDER_INFO)
     @FormUrlEncoded
-    Observable<StatusResult<CheckOrderData>> checkOrderInfo(@FieldMap Map<String, String> fields);
+    Observable<MessageListReslut<CheckOrderData>> checkOrderInfo(@FieldMap Map<String, String> fields);
 
     @POST(Urls.GET_QUEUE_COUNT)
     @FormUrlEncoded
-    Observable<StatusResult<QueueCountData>> getQueueCount(@FieldMap Map<String, String> fields);
+    Observable<MessageListReslut<QueueCountData>> getQueueCount(@FieldMap Map<String, String> fields);
 
     @POST(Urls.CONFIRM_SINGLE_FOR_QUEUE)
     @FormUrlEncoded
-    Observable<StatusResult<ConfirmSingleForQueueData>> confirmSingleForQueue(@FieldMap Map<String, String> fields);
+    Observable<MessageListReslut<SubmitStatusData>> confirmSingleForQueue(@FieldMap Map<String, String> fields);
 
     @GET(Urls.QUERY_ORDER_WAIT_TIME)
-    Observable<StatusResult<QueryOrderWaitTimeData>> queryOrderWaitTime(@QueryMap Map<String, String> fields);
+    Observable<MessageListReslut<QueryOrderWaitTimeData>> queryOrderWaitTime(@QueryMap Map<String, String> fields);
 
     @POST(Urls.RESULT_ORDER_FOR_QUEUE)
     @FormUrlEncoded
-    Observable<StatusResult<ResultOrderForQueueData>> resultOrderForQueue(@FieldMap Map<String, String> fields);
+    Observable<MessageListReslut<ResultOrderForQueueData>> resultOrderForQueue(@FieldMap Map<String, String> fields);
 }

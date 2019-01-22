@@ -5,21 +5,23 @@ import android.text.TextUtils;
 import com.google.gson.Gson;
 import com.kingkung.train.api.TrainApi;
 import com.kingkung.train.bean.CheckOrderData;
-import com.kingkung.train.bean.ConfirmSingleForQueueData;
+import com.kingkung.train.bean.MessageListReslut;
+import com.kingkung.train.bean.MessageReslut;
 import com.kingkung.train.bean.PassengerForm;
 import com.kingkung.train.bean.PassengerInfo;
 import com.kingkung.train.bean.QueryOrderWaitTimeData;
 import com.kingkung.train.bean.QueueCountData;
 import com.kingkung.train.bean.ResultOrderForQueueData;
-import com.kingkung.train.bean.StatusResult;
+import com.kingkung.train.bean.SubmitStatusData;
 import com.kingkung.train.bean.TrainData;
 import com.kingkung.train.bean.TrainDetails;
 import com.kingkung.train.bean.response.DataObserver;
 import com.kingkung.train.bean.response.EmptyObserver;
+import com.kingkung.train.bean.response.MessageListObserver;
 import com.kingkung.train.bean.response.ResultObserver;
-import com.kingkung.train.bean.response.StatusObserver;
-import com.kingkung.train.bean.response.UamtkResult;
-import com.kingkung.train.bean.response.UserNameResult;
+import com.kingkung.train.bean.UamtkResult;
+import com.kingkung.train.bean.UserNameResult;
+import com.kingkung.train.bean.response.SubmitSatusObserver;
 import com.kingkung.train.contract.TrainContract;
 import com.kingkung.train.presenter.base.BasePresenter;
 import com.kingkung.train.utils.City2Code;
@@ -72,6 +74,10 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
     @Inject
     public TrainPresenter(TrainApi api) {
         this.api = api;
+        listenBackEvent();
+    }
+
+    public void listenBackEvent() {
         listenBackEvent(backSubject);
     }
 
@@ -119,7 +125,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
     @Override
     public void interval(long initialDelay, long period, final Runnable r) {
         Disposable disposable = Observable.interval(initialDelay, period, TimeUnit.MILLISECONDS)
-                .subscribeWith(new DataObserver<Long>() {
+                .subscribeWith(new DataObserver<Long>(mView) {
                     @Override
                     public void success(Long aLong) {
                         r.run();
@@ -131,7 +137,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
     @Override
     public void timer(long delay, final Runnable r) {
         Disposable disposable = Observable.timer(delay, TimeUnit.MILLISECONDS)
-                .subscribeWith(new DataObserver<Long>() {
+                .subscribeWith(new DataObserver<Long>(mView) {
                     @Override
                     public void success(Long aLong) {
                         r.run();
@@ -188,12 +194,11 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
         fields.put("leftTicketDTO.to_station", City2Code.city2Code(to));
         fields.put("purpose_codes", "ADULT");
         Disposable disposable = api.queryTrain(fields)
-                .map(new Function<StatusResult<TrainData>, List<TrainDetails>>() {
+                .map(new Function<MessageReslut<TrainData>, List<TrainDetails>>() {
                     @Override
-                    public List<TrainDetails> apply(StatusResult<TrainData> result) throws Exception {
+                    public List<TrainDetails> apply(MessageReslut<TrainData> result) throws Exception {
                         List<TrainDetails> detailsList = new ArrayList<>();
-                        boolean status = Boolean.parseBoolean(result.getStatus());
-                        if (!status) {
+                        if (!result.isStatus()) {
                             return detailsList;
                         }
                         List<String> queryResults = result.getData().getResult();
@@ -226,6 +231,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                             details.toStation = City2Code.code2City(details.toStationCode);
                             details.secretStr = info[TrainDetails.INDEX_SECRET_STR];
                             details.startDate = info[TrainDetails.INDEX_START_DATE];
+                            details.mapSeatType();
                             detailsList.add(details);
                         }
                         return detailsList;
@@ -233,7 +239,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DataObserver<List<TrainDetails>>() {
+                .subscribeWith(new DataObserver<List<TrainDetails>>(mView) {
                     @Override
                     public void success(List<TrainDetails> details) {
                         mView.queryTrainSuccess(details);
@@ -298,7 +304,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
         Disposable disposable = api.checkUser(fields)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new StatusObserver<Object>(mView) {
+                .subscribeWith(new MessageListObserver<Object>(mView) {
                     @Override
                     public void success(Object o) {
                         mView.checkUserSuccess();
@@ -330,15 +336,15 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                 builder.append("undefined=" + "");
                 emitter.onNext(builder.toString());
             }
-        }).flatMap(new Function<String, ObservableSource<StatusResult<Object>>>() {
+        }).flatMap(new Function<String, ObservableSource<MessageListReslut<Object>>>() {
             @Override
-            public ObservableSource<StatusResult<Object>> apply(String s) throws Exception {
+            public ObservableSource<MessageListReslut<Object>> apply(String s) throws Exception {
                 return api.submitOrder(
                         RequestBody.create(MediaType.parse("application/x-www-form-urlencoded; charset=UTF-8"), s));
             }
         }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new StatusObserver<Object>(mView) {
+                .subscribeWith(new MessageListObserver<Object>(mView) {
                     @Override
                     public void success(Object o) {
                         mView.submitOrderSuccess(detail);
@@ -367,7 +373,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DataObserver<Object[]>() {
+                .subscribeWith(new DataObserver<Object[]>(mView) {
                     @Override
                     public void success(Object[] objects) {
                         detail.submitToken = (String) objects[0];
@@ -386,7 +392,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
         Disposable disposable = api.getPassenger(fields)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new StatusObserver<PassengerInfo.PassengerData>(mView) {
+                .subscribeWith(new MessageListObserver<PassengerInfo.PassengerData>(mView) {
                     @Override
                     public void success(PassengerInfo.PassengerData passengerData) {
                         detail.passengerInfos = passengerData.getNormal_passengers();
@@ -425,13 +431,10 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
         Disposable disposable = api.checkOrderInfo(fields)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new StatusObserver<CheckOrderData>(mView) {
+                .subscribeWith(new SubmitSatusObserver<CheckOrderData>(mView) {
                     @Override
                     public void success(CheckOrderData checkOrderData) {
-                        Boolean submtStatus = Boolean.parseBoolean(checkOrderData.submitStatus);
-                        if (submtStatus) {
-                            mView.checkOrderInfoSuccess(detail);
-                        }
+                        mView.checkOrderInfoSuccess(detail);
                     }
                 });
         addSubscription(disposable);
@@ -458,14 +461,14 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                 fields.put("REPEAT_SUBMIT_TOKEN", detail.submitToken);
                 emitter.onNext(fields);
             }
-        }).flatMap(new Function<Map<String, String>, ObservableSource<StatusResult<QueueCountData>>>() {
+        }).flatMap(new Function<Map<String, String>, ObservableSource<MessageListReslut<QueueCountData>>>() {
             @Override
-            public ObservableSource<StatusResult<QueueCountData>> apply(Map<String, String> stringStringMap) throws Exception {
+            public ObservableSource<MessageListReslut<QueueCountData>> apply(Map<String, String> stringStringMap) throws Exception {
                 return api.getQueueCount(stringStringMap);
             }
         }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new StatusObserver<QueueCountData>(mView) {
+                .subscribeWith(new MessageListObserver<QueueCountData>(mView) {
                     @Override
                     public void success(QueueCountData data) {
                         mView.getQueueCountSuccess(detail);
@@ -507,13 +510,10 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
         Disposable disposable = api.confirmSingleForQueue(fields)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new StatusObserver<ConfirmSingleForQueueData>(mView) {
+                .subscribeWith(new SubmitSatusObserver<SubmitStatusData>(mView) {
                     @Override
-                    public void success(ConfirmSingleForQueueData data) {
-                        boolean submitStatus = Boolean.parseBoolean(data.submitStatus);
-                        if (submitStatus) {
-                            mView.confirmSingleForQueueSuccess(detail);
-                        }
+                    public void success(SubmitStatusData data) {
+                        mView.confirmSingleForQueueSuccess(detail);
                     }
                 });
         addSubscription(disposable);
@@ -530,7 +530,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
         Disposable disposable = api.queryOrderWaitTime(fields)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new StatusObserver<QueryOrderWaitTimeData>(mView) {
+                .subscribeWith(new MessageListObserver<QueryOrderWaitTimeData>(mView) {
                     @Override
                     public void success(QueryOrderWaitTimeData data) {
                         long waitTime = Long.parseLong(data.waitTime);
@@ -561,7 +561,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
         Disposable disposable = api.resultOrderForQueue(fields)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new StatusObserver<ResultOrderForQueueData>(mView) {
+                .subscribeWith(new MessageListObserver<ResultOrderForQueueData>(mView) {
                     @Override
                     public void success(ResultOrderForQueueData data) {
                         boolean submitStatus = Boolean.parseBoolean(data.submitStatus);

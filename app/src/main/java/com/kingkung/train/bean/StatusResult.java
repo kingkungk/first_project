@@ -1,24 +1,26 @@
 package com.kingkung.train.bean;
 
-public class StatusResult<D> {
-    private String httpstatus;
-    private String status;
+public class StatusResult<D, M> {
+    private int httpstatus;
+    private boolean status;
 
     private D data;
 
-    public String getHttpstatus() {
+    private M messages;
+
+    public int getHttpstatus() {
         return httpstatus;
     }
 
-    public void setHttpstatus(String httpstatus) {
+    public void setHttpstatus(int httpstatus) {
         this.httpstatus = httpstatus;
     }
 
-    public String getStatus() {
+    public boolean isStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(boolean status) {
         this.status = status;
     }
 
@@ -28,5 +30,13 @@ public class StatusResult<D> {
 
     public void setData(D data) {
         this.data = data;
+    }
+
+    public M getMessages() {
+        return messages;
+    }
+
+    public void setMessages(M messages) {
+        this.messages = messages;
     }
 }

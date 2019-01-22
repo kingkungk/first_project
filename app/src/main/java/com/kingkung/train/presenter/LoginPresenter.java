@@ -5,7 +5,8 @@ import android.graphics.BitmapFactory;
 
 import com.kingkung.train.LoginActivity;
 import com.kingkung.train.api.TrainApi;
-import com.kingkung.train.bean.response.Result;
+import com.kingkung.train.bean.Result;
+import com.kingkung.train.bean.response.DataObserver;
 import com.kingkung.train.contract.LoginContract;
 import com.kingkung.train.presenter.base.BasePresenter;
 
@@ -18,7 +19,6 @@ import javax.inject.Inject;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
@@ -49,20 +49,11 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<Bitmap>() {
+                .subscribeWith(new DataObserver<Bitmap>(mView) {
 
                     @Override
-                    public void onNext(Bitmap bitmap) {
+                    public void success(Bitmap bitmap) {
                         mView.captchaSuccess(bitmap);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                    }
-
-                    @Override
-                    public void onComplete() {
-
                     }
                 });
         addSubscription(disposable);
@@ -78,25 +69,16 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
         Disposable disposable = api.captchaCheck(fields)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<Result>() {
+                .subscribeWith(new DataObserver<Result>(mView) {
 
                     @Override
-                    public void onNext(Result s) {
-                        int code = Integer.valueOf(s.getResult_code());
+                    public void success(Result result) {
+                        int code = Integer.valueOf(result.getResult_code());
                         if (code == 4) {
                             mView.captchaCheckSuccess();
                         } else if (code == 5 || code == 7 || code == 8) { //5.验证码错误；7.验证码过期；8.验证码为空
                             mView.captchaCheckFaild();
                         }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                    }
-
-                    @Override
-                    public void onComplete() {
-
                     }
                 });
         addSubscription(disposable);
@@ -111,24 +93,13 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
         Disposable disposable = api.login(fields)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<Result>() {
-
+                .subscribeWith(new DataObserver<Result>(mView) {
                     @Override
-                    public void onNext(Result result) {
+                    public void success(Result result) {
                         int code = Integer.parseInt(result.getResult_code());
                         if (code == 0) {
                             mView.loginSuccess();
                         }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
                     }
                 });
         addSubscription(disposable);

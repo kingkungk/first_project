@@ -3,33 +3,22 @@ package com.kingkung.train.bean.response;
 import com.kingkung.train.bean.StatusResult;
 import com.kingkung.train.contract.base.BaseContract;
 
-import io.reactivex.observers.DisposableObserver;
-
-public abstract class StatusObserver<D> extends DisposableObserver<StatusResult<D>> {
-    private BaseContract.View view;
+public abstract class StatusObserver<D, M> extends ErrorObserver<StatusResult<D, M>> {
 
     public StatusObserver(BaseContract.View view) {
-        this.view = view;
+        super(view);
     }
 
-
     @Override
-    public void onNext(StatusResult<D> result) {
-        boolean status = Boolean.parseBoolean(result.getStatus());
-        if (status) {
+    public void onNext(StatusResult<D, M> result) {
+        if (result.isStatus()) {
             success(result.getData());
+        } else {
+            statusFailed(result.getMessages());
         }
     }
 
+    public abstract void statusFailed(M messages);
+
     public abstract void success(D d);
-
-    @Override
-    public void onError(Throwable e) {
-
-    }
-
-    @Override
-    public void onComplete() {
-
-    }
 }

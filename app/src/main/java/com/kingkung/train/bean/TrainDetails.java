@@ -1,9 +1,11 @@
 package com.kingkung.train.bean;
 
-import com.kingkung.train.TrainActivity;
+import com.kingkung.train.TrainActivity.SeatType;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TrainDetails {
     //  车次：3
@@ -78,13 +80,22 @@ public class TrainDetails {
     public String secretStr;
     public String startDate;
 
-    public List<TrainActivity.SeatType> seatTypes = new ArrayList<>();
-    public String count;
-
     public String submitToken;
     public PassengerForm passengerForm;
 
     public List<PassengerInfo> passengerInfos;
 
     public String orderId;
+
+    public Map<SeatType, String> seatTypeMap = new LinkedHashMap<>();
+    public List<SeatType> seatTypes = new ArrayList<>();
+    public String count;
+
+    public void mapSeatType() throws NoSuchFieldException, IllegalAccessException {
+        Class c = getClass();
+        SeatType[] seatTypes = SeatType.values();
+        for (SeatType type : seatTypes) {
+            seatTypeMap.put(type, (String) c.getField(type.field).get(this));
+        }
+    }
 }

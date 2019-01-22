@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import butterknife.BindView;
 
@@ -68,18 +70,29 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     private boolean isStartQuery = true;
 
     public enum SeatType {
-        HARD_SLEEP("硬卧", "3"),
-        HARD_SEAT("硬座", "1"),
-        SECOND_CLASS("二等座", "O"),
-        FIRST_CLASS("一等座", "M");
+        HARD_SLEEP("硬卧", "3", "hardSleep"),
+        HARD_SEAT("硬座", "1", "hardSeat"),
+        NO_SEAT("无座", "1", "noSeat"),
+        UPHOLSTERED_SEAT("软座", "2", "softSeat"),
+        SOFT_SLEEP("软卧", "4", "softSleep"),
+        HIGH_SOFT_SLEEP("高级软卧", "6", "advancedSoftSleep"),
+        SECOND_CLASS("二等座", "O", "secondClassSeat"),
+        FIRST_CLASS("一等座", "M", "firstClassSeat"),
+        //        PREMIER_CLASS("特等座", "P", ""),
+        BUSINESS_CLASS("商务座", "9", "businessSeat"),
+        SPEED_SLEEP("动卧", "F", "moveSleep");
+//        HIGH_SPEED_SLEEP("高级动卧", "A", "");
 
         public String name;
 
         public String seatType;
 
-        SeatType(String name, String seatType) {
+        public String field;
+
+        SeatType(String name, String seatType, String field) {
             this.name = name;
             this.seatType = seatType;
+            this.field = field;
         }
 
         @Override
@@ -305,7 +318,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
 
     public boolean filterTrainNo(TrainDetails detail) {
         if (trainNo.size() == 0) {
-            return false;
+            return true;
         }
         List<String> copyTrainNo = new ArrayList<>(trainNo);
         int position = 0;
@@ -335,30 +348,22 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
 
     public boolean filterSeatType(TrainDetails detail) {
         if (seatType.size() == 0) {
-            return false;
+            return true;
         }
         List<SeatType> copySeatType = new ArrayList<>(seatType);
-        for (int i = 0; i < copySeatType.size(); i++) {
-            SeatType type = copySeatType.get(i);
-            if (type == SeatType.HARD_SLEEP && !TextUtils.isEmpty(detail.hardSleep)
-                    && !"无".equals(detail.hardSleep) && !"*".equals(detail.hardSleep)) {
-                detail.seatTypes.add(SeatType.HARD_SLEEP);
-                detail.count = detail.hardSleep;
+        Map<SeatType, String> seatTypeMap = detail.seatTypeMap;
+        Set<Map.Entry<SeatType, String>> entrySet = seatTypeMap.entrySet();
+        Iterator<Map.Entry<SeatType, String>> it = entrySet.iterator();
+        while (it.hasNext()) {
+            Map.Entry<SeatType, String> entryMap = it.next();
+            SeatType type = entryMap.getKey();
+            if (!copySeatType.contains(type)) {
+                continue;
             }
-            if (type == SeatType.HARD_SEAT && !TextUtils.isEmpty(detail.hardSeat)
-                    && !"无".equals(detail.hardSeat) && !"*".equals(detail.hardSeat)) {
-                detail.seatTypes.add(SeatType.HARD_SEAT);
-                detail.count = detail.hardSeat;
-            }
-            if (type == SeatType.SECOND_CLASS && !TextUtils.isEmpty(detail.secondClassSeat)
-                    && !"无".equals(detail.secondClassSeat) && !"*".equals(detail.secondClassSeat)) {
-                detail.seatTypes.add(SeatType.SECOND_CLASS);
-                detail.count = detail.secondClassSeat;
-            }
-            if (type == SeatType.FIRST_CLASS && !TextUtils.isEmpty(detail.firstClassSeat)
-                    && !"无".equals(detail.firstClassSeat) && !"*".equals(detail.firstClassSeat)) {
-                detail.seatTypes.add(SeatType.FIRST_CLASS);
-                detail.count = detail.firstClassSeat;
+            String value = entryMap.getValue();
+            if (!TextUtils.isEmpty(value) && !"无".equals(value) && !"*".equals(value)) {
+                detail.seatTypes.add(type);
+                detail.count = value;
             }
         }
         if (detail.seatTypes.size() == 0) {
@@ -403,6 +408,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
                     presenter.uamtk();
                 }
             });
+            presenter.listenBackEvent();
         }
     }
 

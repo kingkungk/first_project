@@ -1,22 +1,17 @@
 package com.kingkung.train.bean.response;
 
-import io.reactivex.observers.DisposableObserver;
+import com.kingkung.train.contract.base.BaseContract;
 
-public abstract class DataObserver<D> extends DisposableObserver<D> {
+public abstract class DataObserver<D> extends ErrorObserver<D> {
+
+    public DataObserver(BaseContract.View view) {
+        super(view);
+    }
+
     @Override
     public void onNext(D d) {
         success(d);
     }
 
     public abstract void success(D d);
-
-    @Override
-    public void onError(Throwable e) {
-
-    }
-
-    @Override
-    public void onComplete() {
-
-    }
 }
