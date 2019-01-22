@@ -77,6 +77,9 @@ public class TrainApiService {
         }
 
         builder.cookieJar(new CookieJar() {
+
+            List<Cookie> emptyCookie = new ArrayList<>();
+
             @Override
             public void saveFromResponse(HttpUrl httpUrl, List<Cookie> newCookies) {
                 String host = httpUrl.host();
@@ -133,6 +136,9 @@ public class TrainApiService {
 
             @Override
             public List<Cookie> loadForRequest(HttpUrl httpUrl) {
+                if (httpUrl.encodedPath().equals(Urls.QUERY_TRAIN)) {
+                    return emptyCookie;
+                }
                 String host = httpUrl.host();
                 List<Cookie> cookies = cookieStore.get(host);
                 if (cookies == null || cookies.size() == 0) {
@@ -141,7 +147,7 @@ public class TrainApiService {
                         cookieStore.put(host, cookies);
                     }
                 }
-                return cookies != null ? cookies : new ArrayList<Cookie>();
+                return cookies != null ? cookies : emptyCookie;
             }
         });
 

@@ -15,13 +15,13 @@ public class Urls {
 
     public final static String QUERY_TRAIN = "/otn/leftTicket/queryZ";
 
-    public final static String CHECK_USER = "otn/login/checkUser";
+    public final static String CHECK_USER = "/otn/login/checkUser";
 
-    public final static String SUBMIT_ORDER = "otn/leftTicket/submitOrderRequest";
+    public final static String SUBMIT_ORDER = "/otn/leftTicket/submitOrderRequest";
 
-    public final static String INIT_DC = "otn/confirmPassenger/initDc";
+    public final static String INIT_DC = "/otn/confirmPassenger/initDc";
 
-    public final static String GET_PASSENGER = "otn/confirmPassenger/getPassengerDTOs";
+    public final static String GET_PASSENGER = "/otn/confirmPassenger/getPassengerDTOs";
 
     public final static String CHECK_ORDER_INFO = "otn/confirmPassenger/checkOrderInfo";
 
