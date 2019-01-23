@@ -11,4 +11,9 @@
         android:orderInCategory="100"
         android:title="配置"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/logout"
+        android:orderInCategory="100"
+        android:title="退出登录"
+        app:showAsAction="never" />
 </menu>

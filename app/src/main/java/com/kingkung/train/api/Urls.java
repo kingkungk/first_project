@@ -32,4 +32,6 @@ public class Urls {
     public final static String QUERY_ORDER_WAIT_TIME = "otn/confirmPassenger/queryOrderWaitTime";
 
     public final static String RESULT_ORDER_FOR_QUEUE = "otn/confirmPassenger/resultOrderForDcQueue";
+
+    public final static String LOGOUT = "https://kyfw.12306.cn/otn/login/loginOut";
 }

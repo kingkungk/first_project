@@ -35,6 +35,8 @@ public interface TrainContract {
 
         void queryOrderWaitTimeSuccess(TrainDetails detail);
 
+        void logoutSuccess();
+
         void resultOrderForQueueSuccess();
     }
 
@@ -70,6 +72,8 @@ public interface TrainContract {
         void queryOrderWaitTime(TrainDetails detail);
 
         void resultOrderForQueue(TrainDetails detail);
+
+        void logout();
 
         void writeFailedLog(Context context, String failedMsg);
     }

@@ -80,4 +80,7 @@ public interface TrainApi {
     @POST(Urls.RESULT_ORDER_FOR_QUEUE)
     @FormUrlEncoded
     Observable<MessageListReslut<SubmitStatusData>> resultOrderForQueue(@FieldMap Map<String, String> fields);
+
+    @GET(Urls.LOGOUT)
+    Observable<String> logout();
 }

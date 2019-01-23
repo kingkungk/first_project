@@ -311,6 +311,11 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     }
 
     @Override
+    public void logoutSuccess() {
+        presenter.uamtk();
+    }
+
+    @Override
     public void resultOrderForQueueSuccess() {
         textToSpeech.speak("订单提交成功，请去12306上立即支付", TextToSpeech.QUEUE_FLUSH, null);
         presenter.sendEmail(sendEmails, "标题3", "订单提交成功");
@@ -383,6 +388,8 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
             startActivityForResult(intent, 100);
         } else if (id == R.id.failed_msg) {
             startActivity(new Intent(this, FailedLogActivity.class));
+        } else if (id == R.id.logout) {
+            presenter.logout();
         }
         return super.onOptionsItemSelected(item);
     }

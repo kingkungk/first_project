@@ -164,6 +164,8 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                             mView.uamtkFaild();
                         } else if (code == 4) {  //用户已在他处登录
                             mView.uamtkFaild();
+                        } else if (code == 3) {  //用户已注销
+                            mView.uamtkFaild();
                         }
                     }
                 });
@@ -570,6 +572,20 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                     @Override
                     public void success(SubmitStatusData data) {
                         mView.resultOrderForQueueSuccess();
+                    }
+                });
+        addSubscription(disposable);
+    }
+
+    @Override
+    public void logout() {
+        Disposable disposable = api.logout()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DataObserver<String>(mView) {
+                    @Override
+                    public void success(String s) {
+                        mView.logoutSuccess();
                     }
                 });
         addSubscription(disposable);
