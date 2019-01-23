@@ -22,7 +22,7 @@ public abstract class ErrorObserver<D> extends DisposableObserver<D> {
         } else if (e instanceof SocketTimeoutException) {
             failed("连接超时");
         } else {
-            failed("请求失败");
+            failed("请求失败" + e.toString());
         }
     }
 

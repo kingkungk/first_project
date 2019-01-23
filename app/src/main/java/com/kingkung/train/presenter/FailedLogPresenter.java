@@ -1,7 +1,6 @@
 package com.kingkung.train.presenter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 
 import com.kingkung.train.api.TrainApi;
 import com.kingkung.train.bean.response.DataObserver;
@@ -10,7 +9,6 @@ import com.kingkung.train.presenter.base.BasePresenter;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -22,7 +20,6 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.Cookie;
 
 public class FailedLogPresenter extends BasePresenter<FailedLogContract.View> implements FailedLogContract.Presenter {
     private TrainApi api;

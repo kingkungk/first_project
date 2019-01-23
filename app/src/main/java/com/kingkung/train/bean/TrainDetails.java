@@ -2,6 +2,7 @@ package com.kingkung.train.bean;
 
 import com.kingkung.train.TrainActivity.SeatType;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -95,7 +96,8 @@ public class TrainDetails {
         Class c = getClass();
         SeatType[] seatTypes = SeatType.values();
         for (SeatType type : seatTypes) {
-            seatTypeMap.put(type, (String) c.getField(type.field).get(this));
+            Field field = c.getField(type.field);
+            seatTypeMap.put(type, String.valueOf(field.get(this)));
         }
     }
 }

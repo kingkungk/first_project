@@ -353,15 +353,8 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
         }
         List<SeatType> copySeatType = new ArrayList<>(seatType);
         Map<SeatType, String> seatTypeMap = detail.seatTypeMap;
-        Set<Map.Entry<SeatType, String>> entrySet = seatTypeMap.entrySet();
-        Iterator<Map.Entry<SeatType, String>> it = entrySet.iterator();
-        while (it.hasNext()) {
-            Map.Entry<SeatType, String> entryMap = it.next();
-            SeatType type = entryMap.getKey();
-            if (!copySeatType.contains(type)) {
-                continue;
-            }
-            String value = entryMap.getValue();
+        for (SeatType type : copySeatType) {
+            String value = seatTypeMap.get(type);
             if (!TextUtils.isEmpty(value) && !"无".equals(value) && !"*".equals(value)) {
                 detail.seatTypes.add(type);
                 detail.count = value;
