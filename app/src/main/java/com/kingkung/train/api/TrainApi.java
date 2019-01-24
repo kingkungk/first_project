@@ -24,6 +24,7 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.QueryMap;
+import retrofit2.http.Url;
 
 public interface TrainApi {
     @POST(Urls.UAMTK)
@@ -83,4 +84,10 @@ public interface TrainApi {
 
     @GET(Urls.LOGOUT)
     Observable<String> logout();
+
+    @GET(Urls.INDEX)
+    Observable<String> index();
+
+    @GET
+    Observable<String> cityCode(@Url String cityCode);
 }

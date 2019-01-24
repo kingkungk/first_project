@@ -71,8 +71,10 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
     private TrainApi api;
 
     private SimpleDateFormat standardFormat = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss 'GMT+0800' (中国标准时间)", Locale.ENGLISH);
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private SimpleDateFormat serverDateFormat = new SimpleDateFormat("yyyyMMdd");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+    private SimpleDateFormat serverDateFormat = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+
+    private SimpleDateFormat logDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
     @Inject
     public TrainPresenter(TrainApi api) {
@@ -601,7 +603,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                     logFile.createNewFile();
                 }
                 BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true));
-                bw.write(failedMsg + "\r\n");
+                bw.write("[" + logDateFormat.format(new Date()) + "] " + failedMsg + "\r\n");
                 bw.flush();
                 emitter.onNext(true);
             }

@@ -143,7 +143,7 @@ public class TrainApiService {
                 List<Cookie> cookies = cookieStore.get(host);
                 if (cookies == null || cookies.size() == 0) {
                     cookies = loadCookieIfNeed(httpUrl);
-                    if (cookies != null || cookies.size() > 0) {
+                    if (cookies != null && cookies.size() > 0) {
                         cookieStore.put(host, cookies);
                     }
                 }
