@@ -68,7 +68,7 @@
                 android:id="@+id/tv_to"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="到底站"
+                android:text="到达站"
                 android:textColor="#ff999999"
                 android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="@id/tv_to_station" />

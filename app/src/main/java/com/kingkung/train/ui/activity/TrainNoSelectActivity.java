@@ -3,7 +3,6 @@ package com.kingkung.train.ui.activity;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.widget.CompoundButton;
 
 import com.kingkung.train.R;
@@ -67,7 +66,7 @@ public class TrainNoSelectActivity extends BaseActivity<TrainNoSelectPresenter> 
         finish();
     }
 
-    @OnCheckedChanged({R.id.cb_g, R.id.cb_d, R.id.cb_k, R.id.cb_z})
+    @OnCheckedChanged({R.id.cb_g, R.id.cb_d, R.id.cb_k, R.id.cb_z, R.id.cb_t})
     public void filterTrainNo(CompoundButton buttonView, boolean isChecked) {
         List<TrainDetails> details = new ArrayList<>(trainNoSelectAdapter.getAllItem());
         Iterator<TrainDetails> it = details.iterator();

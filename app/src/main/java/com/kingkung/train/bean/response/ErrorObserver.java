@@ -5,6 +5,7 @@ import com.google.gson.stream.MalformedJsonException;
 import com.kingkung.train.contract.base.BaseContract;
 
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 
 import io.reactivex.observers.DisposableObserver;
 
@@ -22,6 +23,8 @@ public abstract class ErrorObserver<D> extends DisposableObserver<D> {
             failed("数据解析失败");
         } else if (e instanceof SocketTimeoutException) {
             failed("连接超时");
+        } else if (e instanceof UnknownHostException) {
+            failed("请选连接网络");
         } else {
             failed("请求失败" + e.toString());
         }

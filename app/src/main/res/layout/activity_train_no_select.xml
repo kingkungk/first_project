@@ -38,8 +38,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
             android:layout_marginBottom="10dp"
             android:orientation="horizontal">
 
@@ -99,6 +97,30 @@
                 android:orientation="horizontal">
 
                 <CheckBox
+                    android:id="@+id/cb_z"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:tag="Z"
+                    android:theme="@style/TrainCheckBox" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:text="直达"
+                    android:textColor="#ffffffff"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <CheckBox
                     android:id="@+id/cb_k"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -123,11 +145,11 @@
                 android:orientation="horizontal">
 
                 <CheckBox
-                    android:id="@+id/cb_z"
+                    android:id="@+id/cb_t"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
-                    android:tag="Z"
+                    android:tag="T"
                     android:theme="@style/TrainCheckBox" />
 
                 <TextView
