@@ -36,4 +36,6 @@ public class Urls {
     public final static String LOGOUT = "https://kyfw.12306.cn/otn/login/loginOut";
 
     public final static String INDEX = "https://www.12306.cn/index/";
+
+    public final static String QUERY_PASSENGER = "/otn/passengers/query";
 }

@@ -1,5 +1,7 @@
 package com.kingkung.train.ui.adapter;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -8,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.kingkung.train.ConfigActivity;
 import com.kingkung.train.R;
 import com.kingkung.train.bean.City;
 
@@ -23,7 +26,10 @@ public class CitySelectAdapter extends RecyclerView.Adapter<CitySelectAdapter.Vi
 
     private List<City> showCities;
 
-    public CitySelectAdapter() {
+    private Activity activity;
+
+    public CitySelectAdapter(Activity activity) {
+        this.activity = activity;
         cities = new ArrayList<>();
         showCities = new ArrayList<>();
     }
@@ -39,6 +45,13 @@ public class CitySelectAdapter extends RecyclerView.Adapter<CitySelectAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         City city = showCities.get(i);
         viewHolder.tvCityName.setText(city.name);
+
+        viewHolder.itemView.setOnClickListener(v -> {
+            Intent data = new Intent();
+            data.putExtra(ConfigActivity.STATION_KEY, city);
+            activity.setResult(ConfigActivity.SELECT_STATION_RESULT_CODE, data);
+            activity.finish();
+        });
     }
 
     @Override
@@ -50,6 +63,7 @@ public class CitySelectAdapter extends RecyclerView.Adapter<CitySelectAdapter.Vi
         showCities.clear();
         if (TextUtils.isEmpty(text)) {
             showCities.addAll(cities);
+            notifyDataSetChanged();
             return;
         }
         for (City city : cities) {
@@ -64,11 +78,11 @@ public class CitySelectAdapter extends RecyclerView.Adapter<CitySelectAdapter.Vi
         notifyDataSetChanged();
     }
 
-    public void addAll(List<City> cities) {
-        this.cities.clear();
-        this.cities.addAll(cities);
+    public void addAll(List<City> cityList) {
+        cities.clear();
+        cities.addAll(cityList);
         showCities.clear();
-        showCities.addAll(cities);
+        showCities.addAll(cityList);
         notifyDataSetChanged();
     }
 

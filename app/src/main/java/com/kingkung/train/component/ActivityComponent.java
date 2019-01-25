@@ -4,8 +4,10 @@ import com.kingkung.train.ConfigActivity;
 import com.kingkung.train.LoginActivity;
 import com.kingkung.train.TrainActivity;
 import com.kingkung.train.ui.activity.CitySelectActivity;
+import com.kingkung.train.ui.activity.DateSelectActivity;
 import com.kingkung.train.ui.activity.FailedLogActivity;
 import com.kingkung.train.ui.activity.MainActivity;
+import com.kingkung.train.ui.activity.TrainNoSelectActivity;
 
 import dagger.Component;
 
@@ -22,4 +24,8 @@ public interface ActivityComponent {
     void inject(FailedLogActivity failedLogActivity);
 
     void inject(CitySelectActivity citySelectActivity);
+
+    void inject(DateSelectActivity dateSelectActivity);
+
+    void inject(TrainNoSelectActivity trainNoSelectActivity);
 }

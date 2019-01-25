@@ -10,6 +10,7 @@ import com.kingkung.train.contract.CitySelectContract;
 import com.kingkung.train.presenter.base.BasePresenter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -75,6 +76,7 @@ public class CitySelectPresenter extends BasePresenter<CitySelectContract.View> 
                             city.num = filed[5];
                             cities.add(city);
                         }
+                        Collections.sort(cities);
                         return cities;
                     }
                 })

@@ -1,6 +1,7 @@
 package com.kingkung.train.bean.response;
 
 import com.google.gson.JsonParseException;
+import com.google.gson.stream.MalformedJsonException;
 import com.kingkung.train.contract.base.BaseContract;
 
 import java.net.SocketTimeoutException;
@@ -17,7 +18,7 @@ public abstract class ErrorObserver<D> extends DisposableObserver<D> {
 
     @Override
     public void onError(Throwable e) {
-        if (e instanceof JsonParseException) {
+        if (e instanceof JsonParseException || e instanceof MalformedJsonException) {
             failed("数据解析失败");
         } else if (e instanceof SocketTimeoutException) {
             failed("连接超时");

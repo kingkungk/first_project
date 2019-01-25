@@ -7,6 +7,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
+import com.kingkung.train.ConfigActivity;
 import com.kingkung.train.R;
 import com.kingkung.train.bean.City;
 import com.kingkung.train.contract.CitySelectContract;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
@@ -28,6 +30,9 @@ public class CitySelectActivity extends BaseActivity<CitySelectPresenter> implem
     EditText etSelectCity;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+
+    @BindView(R.id.tv_title)
+    TextView tvTitle;
 
     private CitySelectAdapter citySelectAdapter;
 
@@ -43,9 +48,16 @@ public class CitySelectActivity extends BaseActivity<CitySelectPresenter> implem
 
     @Override
     protected void create() {
+        int requestType = getIntent().getIntExtra(ConfigActivity.REQUEST_TYPE_KEY, 0);
+        if (requestType == ConfigActivity.FROM_STATION_REQUEST_CODE) {
+            tvTitle.setText("出发城市");
+        } else if (requestType == ConfigActivity.TO_STATION_REQUEST_CODE) {
+            tvTitle.setText("到达城市");
+        }
+
         Disposable disposabl = RxTextView.textChanges(etSelectCity)
                 .skipInitialValue()
-                .debounce(300, TimeUnit.MILLISECONDS)
+                .debounce(50, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<CharSequence>() {
                     @Override
@@ -54,7 +66,7 @@ public class CitySelectActivity extends BaseActivity<CitySelectPresenter> implem
                     }
                 });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        citySelectAdapter = new CitySelectAdapter();
+        citySelectAdapter = new CitySelectAdapter(this);
         recyclerView.setAdapter(citySelectAdapter);
 
         presenter.index();
@@ -68,5 +80,10 @@ public class CitySelectActivity extends BaseActivity<CitySelectPresenter> implem
     @Override
     public void cityCodeSucceed(List<City> cities) {
         citySelectAdapter.addAll(cities);
+    }
+
+    @OnClick(R.id.iv_back)
+    public void back() {
+        finish();
     }
 }

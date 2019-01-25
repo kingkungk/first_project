@@ -15,6 +15,12 @@ public interface LoginContract {
         void captchaCheckFaild();
 
         void loginSuccess();
+
+        void uamtkSuccess(String newapptk);
+
+        void uamtkFaild();
+
+        void uamauthClientSuccess(String username);
     }
 
     interface Presenter extends BaseContract.Presenter<View> {
@@ -23,5 +29,9 @@ public interface LoginContract {
         void captchaCheck(List<Integer> codes);
 
         void login(String userName, String password);
+
+        void uamtk();
+
+        void uamauthClient(String newapptk);
     }
 }

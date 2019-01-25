@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-public class TrainDetails {
+public class TrainDetails implements Comparable<TrainDetails> {
     //  车次：3
     public final static int INDEX_TRAIN_NO = 3;
     //  start_station_code:起始站：4
@@ -99,5 +100,25 @@ public class TrainDetails {
             Field field = c.getField(type.field);
             seatTypeMap.put(type, String.valueOf(field.get(this)));
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TrainDetails details = (TrainDetails) o;
+        return Objects.equals(trainNo, details.trainNo) &&
+                Objects.equals(leaveTime, details.leaveTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(trainNo, leaveTime);
+    }
+
+
+    @Override
+    public int compareTo(TrainDetails o) {
+        return leaveTime.compareTo(o.leaveTime);
     }
 }

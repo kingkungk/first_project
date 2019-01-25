@@ -6,7 +6,10 @@ import android.graphics.BitmapFactory;
 import com.kingkung.train.LoginActivity;
 import com.kingkung.train.api.TrainApi;
 import com.kingkung.train.bean.Result;
+import com.kingkung.train.bean.UamtkResult;
+import com.kingkung.train.bean.UserNameResult;
 import com.kingkung.train.bean.response.DataObserver;
+import com.kingkung.train.bean.response.ResultObserver;
 import com.kingkung.train.contract.LoginContract;
 import com.kingkung.train.presenter.base.BasePresenter;
 
@@ -99,6 +102,48 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
                         int code = Integer.parseInt(result.getResult_code());
                         if (code == 0) {
                             mView.loginSuccess();
+                        }
+                    }
+                });
+        addSubscription(disposable);
+    }
+
+    @Override
+    public void uamtk() {
+        Disposable disposable = api.uamtk("otn")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new ResultObserver<UamtkResult>(mView) {
+                    @Override
+                    public void succeed(UamtkResult uamtkResult) {
+                        int code = Integer.valueOf(uamtkResult.getResult_code());
+                        if (code == 0) {
+                            mView.uamtkSuccess(uamtkResult.getNewapptk());
+                        } else if (code == 1 || code == 7) {  //登录验证没通过
+                            mView.uamtkFaild();
+                        } else if (code == 4) {  //用户已在他处登录
+                            mView.uamtkFaild();
+                        } else if (code == 3) {  //用户已注销
+                            mView.uamtkFaild();
+                        }
+                    }
+                });
+        addSubscription(disposable);
+    }
+
+    @Override
+    public void uamauthClient(String newapptk) {
+        Map<String, String> fields = new HashMap<>();
+        fields.put("tk", newapptk);
+        Disposable disposable = api.uamauthClient(fields)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new ResultObserver<UserNameResult>(mView) {
+                    @Override
+                    public void succeed(UserNameResult userNameResult) {
+                        int code = Integer.parseInt(userNameResult.getResult_code());
+                        if (code == 0) {
+                            mView.uamauthClientSuccess(userNameResult.getUsername());
                         }
                     }
                 });

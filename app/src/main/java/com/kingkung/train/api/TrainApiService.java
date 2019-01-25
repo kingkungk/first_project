@@ -122,7 +122,8 @@ public class TrainApiService {
             }
 
             public List<Cookie> loadCookieIfNeed(HttpUrl httpUrl) {
-                if (httpUrl.encodedPath().equals(Urls.UAMTK)) {
+                String path = httpUrl.encodedPath();
+                if (path.equals(Urls.UAMTK) || path.equals(Urls.QUERY_PASSENGER)) {
                     List<Cookie> cookies = new ArrayList<>();
                     SharedPreferences sp = context.getSharedPreferences("cookie", Context.MODE_PRIVATE);
                     int num = sp.getInt("num", 0);
