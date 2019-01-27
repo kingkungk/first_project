@@ -10,8 +10,13 @@ import com.kingkung.train.contract.CitySelectContract;
 import com.kingkung.train.presenter.base.BasePresenter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.inject.Inject;
 
@@ -56,7 +61,7 @@ public class CitySelectPresenter extends BasePresenter<CitySelectContract.View> 
                 .map(new Function<String, List<City>>() {
                     @Override
                     public List<City> apply(String s) throws Exception {
-                        List<City> cities = new ArrayList<>();
+                        Map<Character, List<City>> cityMap = new TreeMap();
                         String content = s.substring(s.indexOf("\'"), s.lastIndexOf("\'"));
                         String[] items = content.split("@");  //bjb|北京北|VAP|beijingbei|bjb|0
                         for (String item : items) {
@@ -74,10 +79,22 @@ public class CitySelectPresenter extends BasePresenter<CitySelectContract.View> 
                             city.spell = filed[3];
                             city.firstSpell = filed[4];
                             city.num = filed[5];
+
+                            Character c = city.spell.charAt(0);
+                            List<City> cities = cityMap.get(c);
+                            if (cities == null) {
+                                cities = new ArrayList<>();
+                                cityMap.put(c, cities);
+                            }
                             cities.add(city);
                         }
-                        Collections.sort(cities);
-                        return cities;
+                        List<City> resultCities = new ArrayList<>();
+                        Collection<List<City>> values = cityMap.values();
+                        Iterator<List<City>> it = values.iterator();
+                        while (it.hasNext()) {
+                            resultCities.addAll(it.next());
+                        }
+                        return resultCities;
                     }
                 })
                 .subscribeOn(Schedulers.io())

@@ -8,7 +8,7 @@ public class Config {
 
     private List<Passenger> passengers;
 
-    private List<String> trainNo;
+    private List<TrainDetails> trainDetails;
 
     private List<String> trainDate;
 
@@ -40,12 +40,12 @@ public class Config {
         this.passengers = passengers;
     }
 
-    public List<String> getTrainNo() {
-        return trainNo;
+    public List<TrainDetails> getTrainDetails() {
+        return trainDetails;
     }
 
-    public void setTrainNo(List<String> trainNo) {
-        this.trainNo = trainNo;
+    public void setTrainDetails(List<TrainDetails> trainDetails) {
+        this.trainDetails = trainDetails;
     }
 
     public List<String> getTrainDate() {

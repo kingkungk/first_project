@@ -1,5 +1,8 @@
 package com.kingkung.train.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.kingkung.train.TrainActivity.SeatType;
 
 import java.lang.reflect.Field;
@@ -9,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class TrainDetails implements Comparable<TrainDetails> {
+public class TrainDetails implements Comparable<TrainDetails>, Parcelable {
     //  车次：3
     public final static int INDEX_TRAIN_NO = 3;
     //  start_station_code:起始站：4
@@ -93,6 +96,53 @@ public class TrainDetails implements Comparable<TrainDetails> {
     public List<SeatType> seatTypes = new ArrayList<>();
     public String count;
 
+    public boolean isCheck;
+
+    public TrainDetails() {
+
+    }
+
+    public TrainDetails(Parcel in) {
+        trainNo = in.readString();
+        startStationCode = in.readString();
+        endStationCode = in.readString();
+        fromStationCode = in.readString();
+        toStationCode = in.readString();
+        leaveTime = in.readString();
+        arriveTime = in.readString();
+        totalConsume = in.readString();
+        businessSeat = in.readString();
+        firstClassSeat = in.readString();
+        secondClassSeat = in.readString();
+        advancedSoftSleep = in.readString();
+        softSleep = in.readString();
+        moveSleep = in.readString();
+        hardSleep = in.readString();
+        softSeat = in.readString();
+        hardSeat = in.readString();
+        noSeat = in.readString();
+        other = in.readString();
+        mark = in.readString();
+        startStation = in.readString();
+        endStation = in.readString();
+        fromStation = in.readString();
+        toStation = in.readString();
+        secretStr = in.readString();
+        startDate = in.readString();
+    }
+
+    public static final Creator<TrainDetails> CREATOR = new Creator<TrainDetails>() {
+        @Override
+        public TrainDetails createFromParcel(Parcel in) {
+            return new TrainDetails(in);
+        }
+
+        @Override
+        public TrainDetails[] newArray(int size) {
+            return new TrainDetails[size];
+        }
+    };
+
     public void mapSeatType() throws NoSuchFieldException, IllegalAccessException {
         Class c = getClass();
         SeatType[] seatTypes = SeatType.values();
@@ -116,9 +166,48 @@ public class TrainDetails implements Comparable<TrainDetails> {
         return Objects.hash(trainNo, leaveTime);
     }
 
+    @Override
+    public String toString() {
+        return trainNo;
+    }
 
     @Override
     public int compareTo(TrainDetails o) {
         return leaveTime.compareTo(o.leaveTime);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(trainNo);
+        dest.writeString(startStationCode);
+        dest.writeString(endStationCode);
+        dest.writeString(fromStationCode);
+        dest.writeString(toStationCode);
+        dest.writeString(leaveTime);
+        dest.writeString(arriveTime);
+        dest.writeString(totalConsume);
+        dest.writeString(businessSeat);
+        dest.writeString(firstClassSeat);
+        dest.writeString(secondClassSeat);
+        dest.writeString(advancedSoftSleep);
+        dest.writeString(softSleep);
+        dest.writeString(moveSleep);
+        dest.writeString(hardSleep);
+        dest.writeString(softSeat);
+        dest.writeString(hardSeat);
+        dest.writeString(noSeat);
+        dest.writeString(other);
+        dest.writeString(mark);
+        dest.writeString(startStation);
+        dest.writeString(endStation);
+        dest.writeString(fromStation);
+        dest.writeString(toStation);
+        dest.writeString(secretStr);
+        dest.writeString(startDate);
     }
 }

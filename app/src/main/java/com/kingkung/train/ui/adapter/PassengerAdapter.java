@@ -59,7 +59,7 @@ public class PassengerAdapter extends RecyclerView.Adapter<PassengerAdapter.View
 
         @OnCheckedChanged(R.id.cb_passenger)
         public void checkPassenger(CompoundButton buttonView, boolean isChecked) {
-            Passenger passenger = (Passenger) cbPassenger.getTag();
+            Passenger passenger = (Passenger) buttonView.getTag();
             passenger.isCheck = isChecked;
         }
     }

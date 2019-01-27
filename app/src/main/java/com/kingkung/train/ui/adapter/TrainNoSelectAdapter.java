@@ -5,9 +5,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.kingkung.train.R;
+import com.kingkung.train.bean.Passenger;
 import com.kingkung.train.bean.TrainDetails;
 
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 
 public class TrainNoSelectAdapter extends RecyclerView.Adapter<TrainNoSelectAdapter.ViewHolder> {
 
@@ -42,6 +46,9 @@ public class TrainNoSelectAdapter extends RecyclerView.Adapter<TrainNoSelectAdap
         viewHolder.tvToStation.setText(detail.toStation);
         viewHolder.tvTrainNo.setText(detail.trainNo);
         viewHolder.tvTime.setText(detail.totalConsume);
+
+        viewHolder.cbTrainNo.setTag(detail);
+        viewHolder.cbTrainNo.setChecked(detail.isCheck);
     }
 
     @Override
@@ -85,10 +92,18 @@ public class TrainNoSelectAdapter extends RecyclerView.Adapter<TrainNoSelectAdap
         TextView tvTrainNo;
         @BindView(R.id.tv_time)
         TextView tvTime;
+        @BindView(R.id.cb_train_no)
+        CheckBox cbTrainNo;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+        }
+
+        @OnCheckedChanged(R.id.cb_train_no)
+        public void checkPassenger(CompoundButton buttonView, boolean isChecked) {
+            TrainDetails detail = (TrainDetails) buttonView.getTag();
+            detail.isCheck = isChecked;
         }
     }
 }

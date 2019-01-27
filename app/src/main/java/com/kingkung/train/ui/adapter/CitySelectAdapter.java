@@ -67,11 +67,11 @@ public class CitySelectAdapter extends RecyclerView.Adapter<CitySelectAdapter.Vi
             return;
         }
         for (City city : cities) {
-            if (city.firstSpell.contains(text)) {
+            if (city.firstSpell.startsWith(text)) {
                 showCities.add(city);
-            } else if (city.spell.contains(text)) {
+            } else if (city.spell.startsWith(text)) {
                 showCities.add(city);
-            } else if (city.name.contains(text)) {
+            } else if (city.name.startsWith(text)) {
                 showCities.add(city);
             }
         }

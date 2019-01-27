@@ -94,6 +94,7 @@
     </LinearLayout>
 
     <CheckBox
+        android:id="@+id/cb_train_no"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp" />

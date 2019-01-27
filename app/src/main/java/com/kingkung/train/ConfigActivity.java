@@ -1,35 +1,35 @@
 package com.kingkung.train;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceFragment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.kingkung.train.bean.City;
 import com.kingkung.train.bean.Config;
 import com.kingkung.train.bean.Passenger;
+import com.kingkung.train.bean.TrainDetails;
 import com.kingkung.train.contract.ConfigContract;
-import com.kingkung.train.contract.EmptyContract;
 import com.kingkung.train.presenter.ConfigPresenter;
-import com.kingkung.train.presenter.EmptyPresenter;
 import com.kingkung.train.ui.activity.CitySelectActivity;
 import com.kingkung.train.ui.activity.TrainNoSelectActivity;
 import com.kingkung.train.ui.activity.base.BaseActivity;
 import com.kingkung.train.ui.adapter.PassengerAdapter;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -39,25 +39,6 @@ import butterknife.OnClick;
 public class ConfigActivity extends BaseActivity<ConfigPresenter> implements ConfigContract.View {
 
     public final static String TAG = "ConfigActivity";
-
-    @BindView(R.id.et_from_Station)
-    EditText etFromStation;
-    @BindView(R.id.et_to_Station)
-    EditText etToStation;
-    @BindView(R.id.et_passenger)
-    EditText etPassenger;
-    @BindView(R.id.et_train_no)
-    EditText etTrainNo;
-    @BindView(R.id.et_train_date)
-    EditText etTrainDate;
-    @BindView(R.id.et_start_time_quantum)
-    EditText etStartTimeQuantum;
-    @BindView(R.id.et_refresh_interval)
-    EditText etRefreshInterval;
-    @BindView(R.id.et_timer_date)
-    EditText etTimerDate;
-    @BindView(R.id.et_email)
-    EditText etEmail;
 
     public final static int FROM_STATION_REQUEST_CODE = 1;
     public final static int TO_STATION_REQUEST_CODE = 2;
@@ -71,6 +52,9 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
 
     public final static int SELECT_TRAIN_NO_REQUEST_CODE = 20;
     public final static int SELECT_TRAIN_NO_RESULT_CODE = 21;
+    public final static String SELECT_TRAIN_NO_KEY = "select_train_no_key";
+
+    public final static String CONFIG_FILE_NAME = "config";
 
     @BindView(R.id.tv_from_station)
     TextView tvFromStation;
@@ -78,12 +62,12 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
     TextView tvToStation;
     @BindView(R.id.tv_passenger_name)
     TextView tvPassengerName;
+    @BindView(R.id.tv_train_no)
+    TextView tvTrainNo;
+    @BindView(R.id.tv_email)
+    TextView tvEmail;
 
-    private Config config = new Config();
-
-    private SharedPreferences configPreferences;
-
-    private boolean isTrainActivity;
+    private Config config;
 
     private boolean isQueryPassenger = false;
 
@@ -99,63 +83,69 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
 
     @Override
     protected void create() {
-        isTrainActivity = getIntent().getBooleanExtra("isTrainActivity", false);
-
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fl_fragment, new ConfigFragment())
-                .commit();
-
-        configPreferences = getSharedPreferences("configData", Context.MODE_PRIVATE);
-        initViewData();
-        etTimerDate.setText(TrainActivity.timerDateFormat.format(new Date()));
+        initConfigInfo();
     }
 
-    private void initViewData() {
-        Resources resources = getResources();
-        etFromStation.setText(configPreferences.getString("from_station", resources.getString(R.string.from_Station)));
-        etToStation.setText(configPreferences.getString("to_station", resources.getString(R.string.to_Station)));
-        etPassenger.setText(configPreferences.getString("passenger_name", resources.getString(R.string.passenger)));
-        etTrainNo.setText(configPreferences.getString("train_no", resources.getString(R.string.train_no)));
-        etTrainDate.setText(configPreferences.getString("train_date", resources.getString(R.string.train_date)));
-        etStartTimeQuantum.setText(configPreferences.getString("start_time_quantum", resources.getString(R.string.start_time_quantum)));
-        etRefreshInterval.setText(configPreferences.getString("refresh_interval", resources.getString(R.string.refresh_interval)));
-        etEmail.setText(configPreferences.getString("send_email", resources.getString(R.string.email)));
+    private void initConfigInfo() {
+        readConfigJson();
+        if (config == null) {
+            config = new Config();
+            return;
+        }
+
+        City fromCity = config.getFromCity();
+        if (fromCity != null) {
+            tvFromStation.setText(fromCity.name);
+        }
+        City toCity = config.getToCity();
+        if (toCity != null) {
+            tvToStation.setText(toCity.name);
+        }
+
+        List<Passenger> passenger = config.getPassengers();
+        if (passenger != null && !passenger.isEmpty()) {
+            String passengerStr = passenger.toString();
+            tvPassengerName.setText(passengerStr.substring(1, passengerStr.length() - 1));
+        }
+
+        List<TrainDetails> details = config.getTrainDetails();
+        if (details != null && !details.isEmpty()) {
+            String trainNoStr = details.toString();
+            tvTrainNo.setText(trainNoStr.substring(1, trainNoStr.length() - 1));
+        }
+
+        List<String> emails = config.getEmails();
+        if (emails != null && !emails.isEmpty()) {
+            String emailStr = emails.toString();
+            tvEmail.setText(emailStr.substring(1, emailStr.length() - 1));
+        }
     }
 
     @OnClick(R.id.btn_start)
     public void start() {
-        SharedPreferences.Editor editor = configPreferences.edit();
-        editor.putString("from_station", etFromStation.getText().toString());
-        editor.putString("to_station", etToStation.getText().toString());
-        editor.putString("passenger_name", etPassenger.getText().toString());
-        editor.putString("train_no", etTrainNo.getText().toString());
-        editor.putString("train_date", etTrainDate.getText().toString());
-        editor.putString("refresh_interval", etRefreshInterval.getText().toString());
-        editor.putString("start_time_quantum", etStartTimeQuantum.getText().toString());
-        editor.putString("send_email", etEmail.getText().toString());
-        editor.apply();
+        writeConfigJson();
+    }
 
-        Intent intent = new Intent(this, TrainActivity.class);
-        intent.putExtra("from_station", etFromStation.getText().toString());
-        intent.putExtra("to_station", etToStation.getText().toString());
-        intent.putStringArrayListExtra("passenger_name",
-                new ArrayList<>(Arrays.asList(etPassenger.getText().toString().split(","))));
-        intent.putStringArrayListExtra("train_no",
-                new ArrayList<>(Arrays.asList(etTrainNo.getText().toString().split(","))));
-        intent.putStringArrayListExtra("train_date",
-                new ArrayList<>(Arrays.asList(etTrainDate.getText().toString().split(","))));
-        intent.putExtra("refresh_interval", etRefreshInterval.getText().toString());
-        intent.putStringArrayListExtra("start_time_quantum",
-                new ArrayList<>(Arrays.asList(etStartTimeQuantum.getText().toString().split("-"))));
-        intent.putExtra("timer_date", etTimerDate.getText().toString());
-        intent.putStringArrayListExtra("send_email",
-                new ArrayList<>(Arrays.asList(etEmail.getText().toString().split(","))));
-        if (isTrainActivity) {
-            setResult(200, intent);
-        } else {
-            startActivity(intent);
+    public void writeConfigJson() {
+        try {
+            FileWriter fileWriter = new FileWriter(new File(getFilesDir(), CONFIG_FILE_NAME));
+            new Gson().toJson(config, Config.class, fileWriter);
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        finish();
+    }
+
+    public void readConfigJson() {
+        try {
+            FileReader fileReader = new FileReader(new File(getFilesDir(), CONFIG_FILE_NAME));
+            config = new Gson().fromJson(fileReader, Config.class);
+            fileReader.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static class ConfigFragment extends PreferenceFragment {
@@ -195,6 +185,11 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             }
         } else if (resultCode == GO_LOGIN_RESULT_CODE) {
             presenter.getPassenger();
+        } else if (resultCode == SELECT_TRAIN_NO_RESULT_CODE) {
+            List<TrainDetails> details = data.getParcelableArrayListExtra(SELECT_TRAIN_NO_KEY);
+            config.setTrainDetails(details);
+            String trainNosStr = details.toString();
+            tvTrainNo.setText(trainNosStr.substring(1, trainNosStr.length() - 1));
         }
     }
 
@@ -219,7 +214,11 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             return;
         }
         Intent intent = new Intent(this, TrainNoSelectActivity.class);
-        intent.putExtra(TrainNoSelectActivity.TRAIN_DATE_KEY, "2019-01-26");
+        List<TrainDetails> details = config.getTrainDetails();
+        if (details != null && !details.isEmpty()) {
+            intent.putParcelableArrayListExtra(TrainNoSelectActivity.CHECKED_TRAIN_NO_KEY, (ArrayList<? extends Parcelable>) details);
+        }
+        intent.putExtra(TrainNoSelectActivity.TRAIN_DATE_KEY, "2019-01-31");
         intent.putExtra(TrainNoSelectActivity.FROM_STATION_KEY, config.getFromCity());
         intent.putExtra(TrainNoSelectActivity.TO_STATION_KEY, config.getToCity());
         startActivityForResult(intent, SELECT_TRAIN_NO_REQUEST_CODE);
@@ -276,9 +275,11 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
         @OnClick(R.id.btn_confirm)
         public void confirm() {
             List<Passenger> checkPassengers = new ArrayList<>();
+            List<String> emails = new ArrayList<>();
             for (Passenger passenger : passengers) {
                 if (passenger.isCheck) {
                     checkPassengers.add(passenger);
+                    emails.add(passenger.email);
                 }
             }
             if (checkPassengers.isEmpty()) {
@@ -288,6 +289,11 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             String checkPassengerStr = checkPassengers.toString();
             tvPassengerName.setText(checkPassengerStr.substring(1, checkPassengerStr.length() - 1));
             config.setPassengers(checkPassengers);
+
+            String emailStr = emails.toString();
+            tvEmail.setText(emailStr.substring(1, emailStr.length() - 1));
+            config.setEmails(emails);
+
             dialog.cancel();
         }
 
