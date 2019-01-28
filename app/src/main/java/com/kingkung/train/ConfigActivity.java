@@ -1,6 +1,7 @@
 package com.kingkung.train;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -22,6 +23,7 @@ import com.kingkung.train.presenter.ConfigPresenter;
 import com.kingkung.train.ui.activity.CitySelectActivity;
 import com.kingkung.train.ui.activity.TrainNoSelectActivity;
 import com.kingkung.train.ui.activity.base.BaseActivity;
+import com.kingkung.train.ui.adapter.EmailAdapter;
 import com.kingkung.train.ui.adapter.PassengerAdapter;
 
 import java.io.File;
@@ -30,7 +32,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -201,6 +209,12 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
         }
     }
 
+    @OnClick(R.id.tv_email)
+    public void selectEmail() {
+        EmailHolder emailHolder = new EmailHolder();
+        emailHolder.show(this);
+    }
+
     @OnClick(R.id.tv_train_no)
     public void selectTranNo() {
         City fromCity = config.getFromCity();
@@ -226,13 +240,8 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
 
     @Override
     public void getPassengerSucceed(List<Passenger> passengers) {
-        BottomSheetDialog passengerDialog = new BottomSheetDialog(this);
-        View bottomView = getLayoutInflater().inflate(R.layout.passenger_select_dailog, null);
         PassengerHolder passengerHolder = new PassengerHolder();
-        ButterKnife.bind(passengerHolder, bottomView);
-        passengerHolder.init(passengerDialog, passengers);
-        passengerDialog.setContentView(bottomView);
-        passengerDialog.show();
+        passengerHolder.show(this, passengers);
         isQueryPassenger = false;
     }
 
@@ -252,34 +261,39 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
         Dialog dialog;
         List<Passenger> passengers;
 
-        public void init(Dialog dialog, List<Passenger> passengers) {
-            this.dialog = dialog;
+        public void show(Context context, List<Passenger> passengers) {
             this.passengers = passengers;
-            LinearLayoutManager manager = new LinearLayoutManager(dialog.getContext());
-            recyclerView.setLayoutManager(manager);
-            recyclerView.setAdapter(new PassengerAdapter(passengers));
-
             List<Passenger> checkPassengers = config.getPassengers();
-            if (checkPassengers == null || checkPassengers.isEmpty()) {
-                return;
-            }
-            for (Passenger checkPassenger : checkPassengers) {
-                for (Passenger passenger : passengers) {
-                    if (checkPassenger.equals(passenger)) {
-                        passenger.isCheck = true;
+            if (checkPassengers != null && !checkPassengers.isEmpty()) {
+                for (Passenger checkPassenger : checkPassengers) {
+                    for (Passenger passenger : passengers) {
+                        if (checkPassenger.equals(passenger)) {
+                            passenger.isCheck = true;
+                        }
                     }
                 }
             }
+
+            dialog = new BottomSheetDialog(context);
+            View bottomView = getLayoutInflater().inflate(R.layout.passenger_select_dailog, null);
+            ButterKnife.bind(this, bottomView);
+
+            LinearLayoutManager manager = new LinearLayoutManager(context);
+            recyclerView.setLayoutManager(manager);
+            recyclerView.setAdapter(new PassengerAdapter(passengers));
+
+            dialog.setContentView(bottomView);
+            dialog.show();
         }
 
         @OnClick(R.id.btn_confirm)
         public void confirm() {
             List<Passenger> checkPassengers = new ArrayList<>();
-            List<String> emails = new ArrayList<>();
+            List<String> checkEmails = new ArrayList<>();
             for (Passenger passenger : passengers) {
                 if (passenger.isCheck) {
                     checkPassengers.add(passenger);
-                    emails.add(passenger.email);
+                    checkEmails.add(passenger.email);
                 }
             }
             if (checkPassengers.isEmpty()) {
@@ -290,9 +304,74 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             tvPassengerName.setText(checkPassengerStr.substring(1, checkPassengerStr.length() - 1));
             config.setPassengers(checkPassengers);
 
-            String emailStr = emails.toString();
-            tvEmail.setText(emailStr.substring(1, emailStr.length() - 1));
-            config.setEmails(emails);
+            List<String> emails = config.getEmails();
+            if (emails != null && !emails.isEmpty()) {
+                emails.removeAll(checkEmails);
+                checkEmails.addAll(emails);
+            }
+            String checkEmailStr = checkEmails.toString();
+            tvEmail.setText(checkEmailStr.substring(1, checkEmailStr.length() - 1));
+            config.setEmails(checkEmails);
+
+            dialog.cancel();
+        }
+
+        @OnClick(R.id.btn_cancel)
+        public void cancel() {
+            dialog.cancel();
+        }
+    }
+
+    class EmailHolder {
+        @BindView(R.id.recyclerView)
+        RecyclerView recyclerView;
+
+        Dialog dialog;
+        Map<String, Boolean> emailMap = new HashMap<>();
+
+        public void show(Context context) {
+            List<String> emails = config.getEmails();
+            if (emails == null || emails.isEmpty()) {
+                return;
+            }
+            for (String email : emails) {
+                emailMap.put(email, true);
+            }
+
+            dialog = new BottomSheetDialog(context);
+            View bottomView = getLayoutInflater().inflate(R.layout.email_select_dailog, null);
+            ButterKnife.bind(this, bottomView);
+
+            LinearLayoutManager manager = new LinearLayoutManager(context);
+            recyclerView.setLayoutManager(manager);
+            recyclerView.setAdapter(new EmailAdapter(emailMap));
+
+            dialog.setContentView(bottomView);
+            dialog.show();
+        }
+
+        @OnClick(R.id.btn_confirm)
+        public void confirm() {
+            Set<Map.Entry<String, Boolean>> set = emailMap.entrySet();
+            Iterator<Map.Entry<String, Boolean>> it = set.iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, Boolean> entry = it.next();
+                String email = entry.getKey();
+                Boolean isCheck = entry.getValue();
+                if (!isCheck) {
+                    emailMap.remove(email);
+                }
+            }
+
+            Set<String> resultEmail = emailMap.keySet();
+            if (resultEmail.isEmpty()) {
+                showMsg("请选择通知邮箱");
+                return;
+            }
+
+            String resultEmailStr = resultEmail.toString();
+            tvEmail.setText(resultEmailStr.substring(1, resultEmailStr.length() - 1));
+            config.setEmails(new ArrayList(Arrays.asList(resultEmail.toArray())));
 
             dialog.cancel();
         }
