@@ -36,19 +36,21 @@ public class CitySelectPresenter extends BasePresenter<CitySelectContract.View> 
     @Override
     public void index() {
         Disposable disposable = api.index()
-                .map(new Function<String, String>() {
+                .map(new Function<String, String[]>() {
                     @Override
-                    public String apply(String s) throws Exception {
+                    public String[] apply(String s) throws Exception {
                         int index = s.indexOf("script/core/common/station_name");
                         String path = s.substring(index, s.indexOf("\"", index));
-                        return Urls.INDEX + path;
+                        int hotIndex = s.indexOf("script/dist/index/main");
+                        String hotPath = s.substring(hotIndex, s.indexOf("\"", hotIndex)) + ".js";
+                        return new String[]{Urls.INDEX + path, Urls.INDEX + hotPath};
                     }
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DataObserver<String>(mView) {
+                .subscribeWith(new DataObserver<String[]>(mView) {
                     @Override
-                    public void success(String s) {
+                    public void success(String[] s) {
                         mView.indexSucceed(s);
                     }
                 });
@@ -61,8 +63,8 @@ public class CitySelectPresenter extends BasePresenter<CitySelectContract.View> 
                 .map(new Function<String, List<City>>() {
                     @Override
                     public List<City> apply(String s) throws Exception {
+                        String content = s.substring(s.indexOf("\'") + 1, s.lastIndexOf("\'"));
                         Map<Character, List<City>> cityMap = new TreeMap();
-                        String content = s.substring(s.indexOf("\'"), s.lastIndexOf("\'"));
                         String[] items = content.split("@");  //bjb|北京北|VAP|beijingbei|bjb|0
                         for (String item : items) {
                             if (TextUtils.isEmpty(item)) {
@@ -103,6 +105,55 @@ public class CitySelectPresenter extends BasePresenter<CitySelectContract.View> 
                     @Override
                     public void success(List<City> cities) {
                         mView.cityCodeSucceed(cities);
+                    }
+                });
+        addSubscription(disposable);
+    }
+
+    @Override
+    public void hotCityCode(String hotCityUrl) {
+        Disposable disposable = api.cityCode(hotCityUrl)
+                .map(new Function<String, List<City>>() {
+                    @Override
+                    public List<City> apply(String s) throws Exception {
+                        int index = s.indexOf("favorite_names");
+                        int startIndex = s.indexOf("\"", index) + 1;
+                        String content = s.substring(startIndex, s.indexOf("\"", startIndex));
+                        List<City> cities = new ArrayList<>();
+                        String[] items = content.split("@");  //bjb|北京北|VAP|beijingbei|bjb|0
+                        for (String item : items) {
+                            if (TextUtils.isEmpty(item)) {
+                                continue;
+                            }
+                            City city = new City();
+                            String[] filed = item.split("\\|");
+                            if (filed.length == 6) {
+                                city.abbreviationSpell = filed[0];
+                                city.name = filed[1];
+                                city.code = filed[2];
+                                city.spell = filed[3];
+                                city.firstSpell = filed[4];
+                                city.num = filed[5];
+                            } else if (filed.length == 4) {
+                                city.abbreviationSpell = filed[0];
+                                city.name = filed[1];
+                                city.code = filed[2];
+                                city.num = filed[3];
+                            } else {
+                                continue;
+                            }
+
+                            cities.add(city);
+                        }
+                        return cities;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DataObserver<List<City>>(mView) {
+                    @Override
+                    public void success(List<City> cities) {
+                        mView.hotCityCodeSucceed(cities);
                     }
                 });
         addSubscription(disposable);

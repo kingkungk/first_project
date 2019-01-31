@@ -7,14 +7,18 @@ import java.util.List;
 
 public interface CitySelectContract {
     interface View extends BaseContract.View {
-        void indexSucceed(String cityUrl);
+        void indexSucceed(String[] cityUrl);
 
         void cityCodeSucceed(List<City> cities);
+
+        void hotCityCodeSucceed(List<City> cities);
     }
 
     interface Presenter extends BaseContract.Presenter<View> {
         void index();
 
         void cityCode(String cityUrl);
+
+        void hotCityCode(String hotCityUrl);
     }
 }

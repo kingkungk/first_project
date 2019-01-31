@@ -3,20 +3,19 @@ package com.kingkung.train;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Parcelable;
-import android.preference.PreferenceFragment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.kingkung.train.bean.City;
 import com.kingkung.train.bean.Config;
-import com.kingkung.train.bean.Passenger;
+import com.kingkung.train.bean.PassengerInfo;
 import com.kingkung.train.bean.TrainDetails;
 import com.kingkung.train.contract.ConfigContract;
 import com.kingkung.train.presenter.ConfigPresenter;
@@ -32,8 +31,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -70,8 +67,12 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
     TextView tvToStation;
     @BindView(R.id.tv_passenger_name)
     TextView tvPassengerName;
+    @BindView(R.id.tv_train_date)
+    TextView tvTrainDate;
     @BindView(R.id.tv_train_no)
     TextView tvTrainNo;
+    @BindView(R.id.tv_refresh_interval)
+    TextView tvRefreshInterval;
     @BindView(R.id.tv_email)
     TextView tvEmail;
 
@@ -98,7 +99,6 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
         readConfigJson();
         if (config == null) {
             config = new Config();
-            return;
         }
 
         City fromCity = config.getFromCity();
@@ -110,10 +110,16 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             tvToStation.setText(toCity.name);
         }
 
-        List<Passenger> passenger = config.getPassengers();
+        List<PassengerInfo> passenger = config.getPassengers();
         if (passenger != null && !passenger.isEmpty()) {
             String passengerStr = passenger.toString();
             tvPassengerName.setText(passengerStr.substring(1, passengerStr.length() - 1));
+        }
+
+        List<String> trainDates = config.getTrainDates();
+        if (trainDates != null && !trainDates.isEmpty()) {
+            String trainDateStr = trainDates.toString();
+            tvTrainDate.setText(trainDateStr.substring(1, trainDateStr.length() - 1));
         }
 
         List<TrainDetails> details = config.getTrainDetails();
@@ -121,6 +127,9 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             String trainNoStr = details.toString();
             tvTrainNo.setText(trainNoStr.substring(1, trainNoStr.length() - 1));
         }
+
+        int refreshInterval = config.getRefreshInterval();
+        tvRefreshInterval.setText(String.valueOf(refreshInterval));
 
         List<String> emails = config.getEmails();
         if (emails != null && !emails.isEmpty()) {
@@ -132,6 +141,10 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
     @OnClick(R.id.btn_start)
     public void start() {
         writeConfigJson();
+        Intent intent = new Intent(this, TrainActivity.class);
+        intent.putExtra("config", config);
+        startActivity(intent);
+        finish();
     }
 
     public void writeConfigJson() {
@@ -153,14 +166,6 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public static class ConfigFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.preference_config);
         }
     }
 
@@ -227,19 +232,24 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             showMsg("请选择到达站");
             return;
         }
+        List<String> trainDates = config.getTrainDates();
+        if (trainDates == null || trainDates.isEmpty()) {
+            showMsg("请选在出发日期");
+            return;
+        }
         Intent intent = new Intent(this, TrainNoSelectActivity.class);
         List<TrainDetails> details = config.getTrainDetails();
         if (details != null && !details.isEmpty()) {
             intent.putParcelableArrayListExtra(TrainNoSelectActivity.CHECKED_TRAIN_NO_KEY, (ArrayList<? extends Parcelable>) details);
         }
-        intent.putExtra(TrainNoSelectActivity.TRAIN_DATE_KEY, "2019-01-31");
+        intent.putExtra(TrainNoSelectActivity.TRAIN_DATE_KEY, trainDates.get(0));
         intent.putExtra(TrainNoSelectActivity.FROM_STATION_KEY, config.getFromCity());
         intent.putExtra(TrainNoSelectActivity.TO_STATION_KEY, config.getToCity());
         startActivityForResult(intent, SELECT_TRAIN_NO_REQUEST_CODE);
     }
 
     @Override
-    public void getPassengerSucceed(List<Passenger> passengers) {
+    public void getPassengerSucceed(List<PassengerInfo> passengers) {
         PassengerHolder passengerHolder = new PassengerHolder();
         passengerHolder.show(this, passengers);
         isQueryPassenger = false;
@@ -259,17 +269,16 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
         RecyclerView recyclerView;
 
         Dialog dialog;
-        List<Passenger> passengers;
+        List<PassengerInfo> passengers;
 
-        public void show(Context context, List<Passenger> passengers) {
+        public void show(Context context, List<PassengerInfo> passengers) {
             this.passengers = passengers;
-            List<Passenger> checkPassengers = config.getPassengers();
+            List<PassengerInfo> checkPassengers = config.getPassengers();
             if (checkPassengers != null && !checkPassengers.isEmpty()) {
-                for (Passenger checkPassenger : checkPassengers) {
-                    for (Passenger passenger : passengers) {
-                        if (checkPassenger.equals(passenger)) {
-                            passenger.isCheck = true;
-                        }
+                for (PassengerInfo checkPassenger : checkPassengers) {
+                    int index = passengers.indexOf(checkPassenger);
+                    if (index != -1) {
+                        passengers.get(index).isCheck = true;
                     }
                 }
             }
@@ -288,12 +297,14 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
 
         @OnClick(R.id.btn_confirm)
         public void confirm() {
-            List<Passenger> checkPassengers = new ArrayList<>();
+            List<PassengerInfo> checkPassengers = new ArrayList<>();
             List<String> checkEmails = new ArrayList<>();
-            for (Passenger passenger : passengers) {
+            for (PassengerInfo passenger : passengers) {
                 if (passenger.isCheck) {
                     checkPassengers.add(passenger);
-                    checkEmails.add(passenger.email);
+                    if (!TextUtils.isEmpty(passenger.email)) {
+                        checkEmails.add(passenger.email);
+                    }
                 }
             }
             if (checkPassengers.isEmpty()) {
@@ -304,11 +315,6 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             tvPassengerName.setText(checkPassengerStr.substring(1, checkPassengerStr.length() - 1));
             config.setPassengers(checkPassengers);
 
-            List<String> emails = config.getEmails();
-            if (emails != null && !emails.isEmpty()) {
-                emails.removeAll(checkEmails);
-                checkEmails.addAll(emails);
-            }
             String checkEmailStr = checkEmails.toString();
             tvEmail.setText(checkEmailStr.substring(1, checkEmailStr.length() - 1));
             config.setEmails(checkEmails);
@@ -332,7 +338,14 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
         public void show(Context context) {
             List<String> emails = config.getEmails();
             if (emails == null || emails.isEmpty()) {
+                showMsg("请先选择购票人姓名");
                 return;
+            }
+            List<PassengerInfo> passengers = config.getPassengers();
+            for (PassengerInfo passenger : passengers) {
+                if (!TextUtils.isEmpty(passenger.email)) {
+                    emailMap.put(passenger.email, false);
+                }
             }
             for (String email : emails) {
                 emailMap.put(email, true);
@@ -352,18 +365,18 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
 
         @OnClick(R.id.btn_confirm)
         public void confirm() {
+            List<String> resultEmail = new ArrayList<>();
             Set<Map.Entry<String, Boolean>> set = emailMap.entrySet();
             Iterator<Map.Entry<String, Boolean>> it = set.iterator();
             while (it.hasNext()) {
                 Map.Entry<String, Boolean> entry = it.next();
                 String email = entry.getKey();
                 Boolean isCheck = entry.getValue();
-                if (!isCheck) {
-                    emailMap.remove(email);
+                if (isCheck) {
+                    resultEmail.add(email);
                 }
             }
 
-            Set<String> resultEmail = emailMap.keySet();
             if (resultEmail.isEmpty()) {
                 showMsg("请选择通知邮箱");
                 return;
@@ -371,7 +384,7 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
 
             String resultEmailStr = resultEmail.toString();
             tvEmail.setText(resultEmailStr.substring(1, resultEmailStr.length() - 1));
-            config.setEmails(new ArrayList(Arrays.asList(resultEmail.toArray())));
+            config.setEmails(resultEmail);
 
             dialog.cancel();
         }

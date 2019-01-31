@@ -65,8 +65,7 @@
                             android:imeOptions="actionUnspecified"
                             android:inputType="textPassword"
                             android:maxLines="1"
-                            android:singleLine="true"
-                            android:text="@string/password" />
+                            android:singleLine="true" />
 
                         <ImageView
                             android:id="@+id/iv_code"

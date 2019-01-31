@@ -3,7 +3,10 @@ package com.kingkung.train.ui.activity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
@@ -14,7 +17,9 @@ import com.kingkung.train.contract.CitySelectContract;
 import com.kingkung.train.presenter.CitySelectPresenter;
 import com.kingkung.train.ui.activity.base.BaseActivity;
 import com.kingkung.train.ui.adapter.CitySelectAdapter;
+import com.kingkung.train.ui.adapter.CitySelectAdapter2;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +39,12 @@ public class CitySelectActivity extends BaseActivity<CitySelectPresenter> implem
     @BindView(R.id.tv_title)
     TextView tvTitle;
 
-    private CitySelectAdapter citySelectAdapter;
+    @BindView(R.id.ll_character_index)
+    LinearLayout llCharacterIndex;
+
+    private char firstChar = 'A';
+
+    private CitySelectAdapter2 citySelectAdapter;
 
     @Override
     protected void inject() {
@@ -59,27 +69,46 @@ public class CitySelectActivity extends BaseActivity<CitySelectPresenter> implem
                 .skipInitialValue()
                 .debounce(50, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<CharSequence>() {
-                    @Override
-                    public void accept(CharSequence charSequence) throws Exception {
-                        citySelectAdapter.filter(charSequence.toString());
-                    }
+                .subscribe(charSequence -> {
+//                        citySelectAdapter.filter(charSequence.toString());
                 });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        citySelectAdapter = new CitySelectAdapter(this);
+        citySelectAdapter = new CitySelectAdapter2(this);
         recyclerView.setAdapter(citySelectAdapter);
 
         presenter.index();
+
+        initCharacterIndex();
+    }
+
+    private void initCharacterIndex() {
+        LayoutInflater inflater = getLayoutInflater();
+        for (int i = 0; i < 26; i++) {
+            String character = String.valueOf((char) (firstChar + i));
+            TextView tvCharacter = (TextView) inflater.inflate(R.layout.item_character_index, llCharacterIndex, false);
+            tvCharacter.setText(character);
+            llCharacterIndex.addView(tvCharacter);
+            tvCharacter.setOnClickListener(v -> {
+                int position = citySelectAdapter.getPosition(character);
+                recyclerView.scrollToPosition(position);
+            });
+        }
     }
 
     @Override
-    public void indexSucceed(String cityUrl) {
-        presenter.cityCode(cityUrl);
+    public void indexSucceed(String[] cityUrl) {
+        presenter.cityCode(cityUrl[0]);
+        presenter.hotCityCode(cityUrl[1]);
     }
 
     @Override
     public void cityCodeSucceed(List<City> cities) {
-        citySelectAdapter.addAll(cities);
+        citySelectAdapter.addItems(cities);
+    }
+
+    @Override
+    public void hotCityCodeSucceed(List<City> cities) {
+        citySelectAdapter.setHotCities(cities);
     }
 
     @OnClick(R.id.iv_back)

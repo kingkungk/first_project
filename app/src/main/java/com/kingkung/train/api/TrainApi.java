@@ -3,7 +3,6 @@ package com.kingkung.train.api;
 import com.kingkung.train.bean.CheckOrderData;
 import com.kingkung.train.bean.MessageListReslut;
 import com.kingkung.train.bean.MessageReslut;
-import com.kingkung.train.bean.Passenger;
 import com.kingkung.train.bean.PassengerInfo;
 import com.kingkung.train.bean.QueryOrderWaitTimeData;
 import com.kingkung.train.bean.QueueCountData;
@@ -62,7 +61,7 @@ public interface TrainApi {
 
     @POST(Urls.GET_PASSENGER)
     @FormUrlEncoded
-    Observable<MessageListReslut<PassengerInfo.PassengerData>> getPassenger(@FieldMap Map<String, String> fields);
+    Observable<MessageListReslut<PassengerInfo.PassengerNormal>> getPassenger(@FieldMap Map<String, String> fields);
 
     @POST(Urls.CHECK_ORDER_INFO)
     @FormUrlEncoded
@@ -94,5 +93,5 @@ public interface TrainApi {
 
     @POST(Urls.QUERY_PASSENGER)
     @FormUrlEncoded
-    Observable<MessageListReslut<Passenger.PassengerData>> queryPassenger(@Field("pageIndex") int pageIndex, @Field("pageSize") int pageSize);
+    Observable<MessageListReslut<PassengerInfo.PassengerData>> queryPassenger(@Field("pageIndex") int pageIndex, @Field("pageSize") int pageSize);
 }

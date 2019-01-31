@@ -142,6 +142,8 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     public void loginSuccess() {
         if (tag.equals(ConfigActivity.TAG)) {
             presenter.uamtk();
+        } else {
+            finish();
         }
     }
 

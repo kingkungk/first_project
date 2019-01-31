@@ -1,20 +1,50 @@
 package com.kingkung.train.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.util.Arrays;
 import java.util.List;
 
-public class Config {
+public class Config implements Parcelable {
     private City fromCity;
     private City toCity;
 
-    private List<Passenger> passengers;
+    private List<PassengerInfo> passengers;
 
     private List<TrainDetails> trainDetails;
 
-    private List<String> trainDate;
+    private List<String> trainDates = Arrays.asList("2019-02-12");
 
-    private int refreshInterval;
+    private int refreshInterval = 3000;
 
     private List<String> emails;
+
+    public Config() {
+
+    }
+
+    protected Config(Parcel in) {
+        fromCity = in.readParcelable(City.class.getClassLoader());
+        toCity = in.readParcelable(City.class.getClassLoader());
+        passengers = in.createTypedArrayList(PassengerInfo.CREATOR);
+        trainDetails = in.createTypedArrayList(TrainDetails.CREATOR);
+        trainDates = in.createStringArrayList();
+        refreshInterval = in.readInt();
+        emails = in.createStringArrayList();
+    }
+
+    public static final Creator<Config> CREATOR = new Creator<Config>() {
+        @Override
+        public Config createFromParcel(Parcel in) {
+            return new Config(in);
+        }
+
+        @Override
+        public Config[] newArray(int size) {
+            return new Config[size];
+        }
+    };
 
     public City getFromCity() {
         return fromCity;
@@ -32,11 +62,11 @@ public class Config {
         this.toCity = toCity;
     }
 
-    public List<Passenger> getPassengers() {
+    public List<PassengerInfo> getPassengers() {
         return passengers;
     }
 
-    public void setPassengers(List<Passenger> passengers) {
+    public void setPassengers(List<PassengerInfo> passengers) {
         this.passengers = passengers;
     }
 
@@ -48,12 +78,12 @@ public class Config {
         this.trainDetails = trainDetails;
     }
 
-    public List<String> getTrainDate() {
-        return trainDate;
+    public List<String> getTrainDates() {
+        return trainDates;
     }
 
-    public void setTrainDate(List<String> trainDate) {
-        this.trainDate = trainDate;
+    public void setTrainDates(List<String> trainDates) {
+        this.trainDates = trainDates;
     }
 
     public int getRefreshInterval() {
@@ -70,5 +100,21 @@ public class Config {
 
     public void setEmails(List<String> emails) {
         this.emails = emails;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(fromCity, flags);
+        dest.writeParcelable(toCity, flags);
+        dest.writeTypedList(passengers);
+        dest.writeTypedList(trainDetails);
+        dest.writeStringList(trainDates);
+        dest.writeInt(refreshInterval);
+        dest.writeStringList(emails);
     }
 }

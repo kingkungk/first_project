@@ -7,7 +7,6 @@ import com.kingkung.train.bean.TrainDetails;
 import com.kingkung.train.bean.response.DataObserver;
 import com.kingkung.train.contract.TrainNoSelectContract;
 import com.kingkung.train.presenter.base.BasePresenter;
-import com.kingkung.train.utils.City2Code;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -69,10 +68,10 @@ public class TrainNoSelectPresenter extends BasePresenter<TrainNoSelectContract.
                             details.noSeat = info[TrainDetails.INDEX_TRAIN_NO_SEAT];
                             details.other = info[TrainDetails.INDEX_TRAIN_OTHER];
                             details.mark = info[TrainDetails.INDEX_TRAIN_MARK];
-                            details.startStation = City2Code.code2City(details.startStationCode);
-                            details.endStation = City2Code.code2City(details.endStationCode);
-                            details.fromStation = City2Code.code2City(details.fromStationCode);
-                            details.toStation = City2Code.code2City(details.toStationCode);
+                            details.startStation = details.startStationCode;
+                            details.endStation = details.endStationCode;
+                            details.fromStation = details.fromStationCode;
+                            details.toStation = details.toStationCode;
                             details.secretStr = info[TrainDetails.INDEX_SECRET_STR];
                             details.startDate = info[TrainDetails.INDEX_START_DATE];
                             details.mapSeatType();

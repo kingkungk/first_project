@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.kingkung.train.bean.Config;
 import com.kingkung.train.bean.PassengerInfo;
 import com.kingkung.train.bean.TrainDetails;
 import com.kingkung.train.contract.TrainContract;
@@ -26,11 +27,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import butterknife.BindView;
 
 public class TrainActivity extends BaseActivity<TrainPresenter> implements TrainContract.View {
+    public static final String TAG = "TrainActivity";
+
     @BindView(R.id.toolBar)
     Toolbar toolbar;
     @BindView(R.id.listView)
@@ -46,7 +48,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     private TextToSpeech textToSpeech;
 
     //刷新间隔
-    private int refreshQueryInterval = 3000;
+    private int refreshQueryInterval;
     //刷新登录会话
     private int refreshLoginInterval = 1000 * 60 * 5;
     //出发站
@@ -54,11 +56,11 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     //到达站
     private String toStation;
     // 车次，如果为空就不过滤
-    private List<String> trainNo;
+    private List<TrainDetails> trainNo;
     //乘车日期
     private List<String> trainDate;
     //乘车人姓名
-    private List<String> passengerNames;
+    private List<PassengerInfo> passengers;
     //出发时间段
     private List<Long> startTimeQuantum = new ArrayList<>(2);
     //座位类别,如果为空就不过滤
@@ -116,7 +118,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     protected void create() {
         setSupportActionBar(toolbar);
 
-        initIntent(getIntent());
+        initConfig(getIntent());
 
         messageAdapter = new ArrayAdapter<>(this, R.layout.item_message);
         listView.setAdapter(messageAdapter);
@@ -142,24 +144,15 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
         });
     }
 
-    public void initIntent(Intent intent) {
-        fromStation = intent.getStringExtra("from_station");
-        toStation = intent.getStringExtra("to_station");
-        passengerNames = intent.getStringArrayListExtra("passenger_name");
-        trainNo = intent.getStringArrayListExtra("train_no");
-        trainDate = intent.getStringArrayListExtra("train_date");
-        refreshQueryInterval = Integer.parseInt(intent.getStringExtra("refresh_interval"));
-        try {
-            List<String> startTimeQuantumStr = intent.getStringArrayListExtra("start_time_quantum");
-            startTimeQuantum.add(timeQuantumDateFormat.parse(startTimeQuantumStr.get(0)).getTime());
-            startTimeQuantum.add(timeQuantumDateFormat.parse(startTimeQuantumStr.get(1)).getTime());
-
-            String timerTimeStr = intent.getStringExtra("timer_date");
-            timerTime = timerDateFormat.parse(timerTimeStr).getTime();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        sendEmails = intent.getStringArrayListExtra("send_email");
+    public void initConfig(Intent intent) {
+        Config config = intent.getParcelableExtra("config");
+        fromStation = config.getFromCity().code;
+        toStation = config.getToCity().code;
+        passengers = config.getPassengers();
+        trainNo = config.getTrainDetails();
+        trainDate = config.getTrainDates();
+        refreshQueryInterval = config.getRefreshInterval();
+        sendEmails = config.getEmails();
     }
 
     @Override
@@ -186,7 +179,9 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     public void uamtkFaild() {
         isStartQuery = true;
         presenter.detachView();
-        startActivityForResult(new Intent(this, LoginActivity.class), 100);
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.putExtra(LoginActivity.TAG_KEY, TAG);
+        startActivityForResult(intent, 100);
     }
 
     @Override
@@ -226,10 +221,10 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
                 it.remove();
                 continue;
             }
-            if (filterLeaveTime(trainDetail)) {
-                it.remove();
-                continue;
-            }
+//            if (filterLeaveTime(trainDetail)) {
+//                it.remove();
+//                continue;
+//            }
         }
         messageAdapter.add("第" + count + "次");
         count++;
@@ -272,8 +267,8 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
 
     @Override
     public void getPassengerSuccess(TrainDetails detail) {
-        List<String> copyPassengerNames = new ArrayList<>(passengerNames);
-        if (copyPassengerNames.size() == 0) {
+        List<PassengerInfo> copyPassengers = new ArrayList<>(passengers);
+        if (copyPassengers.size() == 0) {
             presenter.checkOrderInfo(detail);
             return;
         }
@@ -281,7 +276,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
         Iterator<PassengerInfo> it = passengerInfos.iterator();
         while (it.hasNext()) {
             PassengerInfo info = it.next();
-            if (!copyPassengerNames.contains(info.passenger_name)) {
+            if (!copyPassengers.contains(info)) {
                 it.remove();
             }
         }
@@ -326,11 +321,11 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
         if (trainNo.size() == 0) {
             return true;
         }
-        List<String> copyTrainNo = new ArrayList<>(trainNo);
+        List<TrainDetails> copyTrainNo = new ArrayList<>(trainNo);
         int position = 0;
         for (; position < copyTrainNo.size(); position++) {
-            String type = copyTrainNo.get(position);
-            if (detail.trainNo.startsWith(type)) {
+            TrainDetails trainDetail = copyTrainNo.get(position);
+            if (detail.trainNo.startsWith(trainDetail.trainNo)) {
                 break;
             }
         }
@@ -401,7 +396,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
             if (resultCode == 200) {
                 count = 1;
                 messageAdapter.clear();
-                initIntent(data);
+                initConfig(data);
             }
             presenter.attachView(this);
             presenter.interval(0, refreshLoginInterval, new Runnable() {

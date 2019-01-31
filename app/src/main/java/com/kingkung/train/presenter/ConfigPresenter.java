@@ -1,9 +1,7 @@
 package com.kingkung.train.presenter;
 
 import com.kingkung.train.api.TrainApi;
-import com.kingkung.train.api.Urls;
-import com.kingkung.train.bean.Passenger;
-import com.kingkung.train.bean.response.DataObserver;
+import com.kingkung.train.bean.PassengerInfo;
 import com.kingkung.train.bean.response.MessageListObserver;
 import com.kingkung.train.contract.ConfigContract;
 import com.kingkung.train.presenter.base.BasePresenter;
@@ -27,9 +25,9 @@ public class ConfigPresenter extends BasePresenter<ConfigContract.View> implemen
         Disposable disposable = api.queryPassenger(1, 10)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new MessageListObserver<Passenger.PassengerData>(mView) {
+                .subscribeWith(new MessageListObserver<PassengerInfo.PassengerData>(mView) {
                     @Override
-                    public void success(Passenger.PassengerData passengerData) {
+                    public void success(PassengerInfo.PassengerData passengerData) {
                         if (passengerData.flag) {
                             mView.getPassengerSucceed(passengerData.datas);
                         } else {

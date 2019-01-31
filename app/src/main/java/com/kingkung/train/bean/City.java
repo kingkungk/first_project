@@ -3,7 +3,9 @@ package com.kingkung.train.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class City implements Parcelable, Comparable<City> {
+import com.kingkung.train.ui.adapter.CharacterDividedAdapter;
+
+public class City extends CharacterDividedAdapter.CharacterItem implements Parcelable, Comparable<City> {
     public String abbreviationSpell;
     public String name;
     public String code;
@@ -55,5 +57,15 @@ public class City implements Parcelable, Comparable<City> {
     @Override
     public int compareTo(City o) {
         return spell.compareTo(o.spell);
+    }
+
+    @Override
+    public String getCharacter() {
+        return String.valueOf(spell.charAt(0));
+    }
+
+    @Override
+    public char getSortCharacter() {
+        return spell.charAt(0);
     }
 }

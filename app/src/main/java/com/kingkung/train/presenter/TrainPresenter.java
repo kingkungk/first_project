@@ -24,7 +24,6 @@ import com.kingkung.train.bean.UserNameResult;
 import com.kingkung.train.bean.response.SubmitSatusObserver;
 import com.kingkung.train.contract.TrainContract;
 import com.kingkung.train.presenter.base.BasePresenter;
-import com.kingkung.train.utils.City2Code;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -197,8 +196,8 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
     public void queryTrain(String date, String from, String to) {
         Map<String, String> fields = new LinkedHashMap<>();
         fields.put("leftTicketDTO.train_date", date);
-        fields.put("leftTicketDTO.from_station", City2Code.city2Code(from));
-        fields.put("leftTicketDTO.to_station", City2Code.city2Code(to));
+        fields.put("leftTicketDTO.from_station", from);
+        fields.put("leftTicketDTO.to_station", to);
         fields.put("purpose_codes", "ADULT");
         Disposable disposable = api.queryTrain(fields)
                 .map(new Function<MessageReslut<TrainData>, List<TrainDetails>>() {
@@ -232,10 +231,10 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                             details.noSeat = info[TrainDetails.INDEX_TRAIN_NO_SEAT];
                             details.other = info[TrainDetails.INDEX_TRAIN_OTHER];
                             details.mark = info[TrainDetails.INDEX_TRAIN_MARK];
-                            details.startStation = City2Code.code2City(details.startStationCode);
-                            details.endStation = City2Code.code2City(details.endStationCode);
-                            details.fromStation = City2Code.code2City(details.fromStationCode);
-                            details.toStation = City2Code.code2City(details.toStationCode);
+                            details.startStation = details.startStationCode;
+                            details.endStation = details.endStationCode;
+                            details.fromStation = details.fromStationCode;
+                            details.toStation = details.toStationCode;
                             details.secretStr = info[TrainDetails.INDEX_SECRET_STR];
                             details.startDate = info[TrainDetails.INDEX_START_DATE];
                             details.mapSeatType();
@@ -399,10 +398,10 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
         Disposable disposable = api.getPassenger(fields)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new MessageListObserver<PassengerInfo.PassengerData>(mView) {
+                .subscribeWith(new MessageListObserver<PassengerInfo.PassengerNormal>(mView) {
                     @Override
-                    public void success(PassengerInfo.PassengerData passengerData) {
-                        detail.passengerInfos = passengerData.getNormal_passengers();
+                    public void success(PassengerInfo.PassengerNormal passengerNormal) {
+                        detail.passengerInfos = passengerNormal.normal_passengers;
                         mView.getPassengerSuccess(detail);
                     }
                 });

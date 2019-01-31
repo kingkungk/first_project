@@ -10,7 +10,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.kingkung.train.R;
-import com.kingkung.train.bean.Passenger;
+import com.kingkung.train.bean.PassengerInfo;
 
 import java.util.List;
 
@@ -20,9 +20,9 @@ import butterknife.OnCheckedChanged;
 
 public class PassengerAdapter extends RecyclerView.Adapter<PassengerAdapter.ViewHolder> {
 
-    private List<Passenger> passengers;
+    private List<PassengerInfo> passengers;
 
-    public PassengerAdapter(List<Passenger> passengers) {
+    public PassengerAdapter(List<PassengerInfo> passengers) {
         this.passengers = passengers;
     }
 
@@ -34,7 +34,7 @@ public class PassengerAdapter extends RecyclerView.Adapter<PassengerAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        Passenger passenger = passengers.get(i);
+        PassengerInfo passenger = passengers.get(i);
         viewHolder.tvPassengerName.setText(passenger.passenger_name);
         viewHolder.cbPassenger.setTag(passenger);
         viewHolder.cbPassenger.setChecked(passenger.isCheck);
@@ -59,7 +59,7 @@ public class PassengerAdapter extends RecyclerView.Adapter<PassengerAdapter.View
 
         @OnCheckedChanged(R.id.cb_passenger)
         public void checkPassenger(CompoundButton buttonView, boolean isChecked) {
-            Passenger passenger = (Passenger) buttonView.getTag();
+            PassengerInfo passenger = (PassengerInfo) buttonView.getTag();
             passenger.isCheck = isChecked;
         }
     }

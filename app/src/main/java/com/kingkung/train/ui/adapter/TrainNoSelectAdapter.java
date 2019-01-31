@@ -10,7 +10,6 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.kingkung.train.R;
-import com.kingkung.train.bean.Passenger;
 import com.kingkung.train.bean.TrainDetails;
 
 import java.util.ArrayList;
