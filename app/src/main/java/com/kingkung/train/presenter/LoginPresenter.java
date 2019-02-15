@@ -79,8 +79,8 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
                         int code = Integer.valueOf(result.getResult_code());
                         if (code == 4) {
                             mView.captchaCheckSuccess();
-                        } else if (code == 5 || code == 7 || code == 8) { //5.验证码错误；7.验证码过期；8.验证码为空
-                            mView.captchaCheckFaild();
+                        } else { //5.验证码错误；7.验证码过期；8.验证码为空
+                            mView.captchaCheckFailed(result.getResult_message());
                         }
                     }
                 });
@@ -102,6 +102,8 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
                         int code = Integer.parseInt(result.getResult_code());
                         if (code == 0) {
                             mView.loginSuccess();
+                        } else {
+                            mView.loginFailed(result.getResult_message());
                         }
                     }
                 });
@@ -119,12 +121,8 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
                         int code = Integer.valueOf(uamtkResult.getResult_code());
                         if (code == 0) {
                             mView.uamtkSuccess(uamtkResult.getNewapptk());
-                        } else if (code == 1 || code == 7) {  //登录验证没通过
-                            mView.uamtkFaild();
-                        } else if (code == 4) {  //用户已在他处登录
-                            mView.uamtkFaild();
-                        } else if (code == 3) {  //用户已注销
-                            mView.uamtkFaild();
+                        } else {  //1.登录验证没通过；7. ；4.用户已在他处登录；3.用户已注销
+                            mView.uamtkFailed(uamtkResult.getResult_message());
                         }
                     }
                 });

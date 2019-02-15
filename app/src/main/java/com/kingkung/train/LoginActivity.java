@@ -31,9 +31,9 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     ImageView ivCode;
 
     public final static int SCALE = 3;
+    public int codeBitmapRealWidth;
+    public int codeBitmapRealHeight;
     public List<Integer> codes = new ArrayList<>();
-
-    int[][][] coordinates = new int[][][]{{{40, 40}, {40, 110}}, {{110, 40}, {110, 110}}, {{180, 40}, {180, 110}}, {{250, 40}, {250, 110}}};
 
     private String userName;
     private String password;
@@ -82,48 +82,22 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
             return;
         }
 
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString("username", userName);
-        editor.putString("password", password);
-        editor.commit();
-
         presenter.captchaCheck(codes);
     }
 
     @OnTouch(R.id.iv_code)
     public boolean clickCode(View v, MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
-            int xPonit = 0;
-            int yPonit = 0;
-            int width = v.getWidth();
-            int height = v.getHeight();
-            float x = event.getX();
-            float y = event.getY();
-            float widthWeight = width / 4f;
-            float heightWeight = height / 2f;
-            if (x < widthWeight) {
-                xPonit = 0;
-            } else if (x < widthWeight * 2) {
-                xPonit = 1;
-            } else if (x < widthWeight * 3) {
-                xPonit = 2;
-            } else if (x < widthWeight * 4) {
-                xPonit = 3;
-            }
-            if (y < heightWeight) {
-                yPonit = 0;
-            } else if (y < heightWeight * 2) {
-                yPonit = 1;
-            }
-            int[] coord = coordinates[xPonit][yPonit];
-            codes.add(coord[0]);
-            codes.add(coord[1]);
+            codes.add((int) (event.getX() / v.getWidth() * codeBitmapRealWidth));
+            codes.add((int) (event.getY() / v.getHeight() * codeBitmapRealHeight));
         }
         return true;
     }
 
     @Override
     public void captchaSuccess(Bitmap bitmap) {
+        codeBitmapRealWidth = bitmap.getWidth() / SCALE;
+        codeBitmapRealHeight = (int) (bitmap.getHeight() / SCALE * 0.84);
         codes.clear();
         ivCode.setImageBitmap(bitmap);
     }
@@ -134,12 +108,18 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     }
 
     @Override
-    public void captchaCheckFaild() {
+    public void captchaCheckFailed(String failedMsg) {
+        showMsg(failedMsg);
         presenter.captcha();
     }
 
     @Override
     public void loginSuccess() {
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("username", userName);
+        editor.putString("password", password);
+        editor.commit();
+
         if (tag.equals(ConfigActivity.TAG)) {
             presenter.uamtk();
         } else {
@@ -148,12 +128,18 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     }
 
     @Override
+    public void loginFailed(String failedMsg) {
+        showMsg(failedMsg);
+        presenter.captcha();
+    }
+
+    @Override
     public void uamtkSuccess(String newapptk) {
         presenter.uamauthClient(newapptk);
     }
 
     @Override
-    public void uamtkFaild() {
+    public void uamtkFailed(String failedMsg) {
 
     }
 

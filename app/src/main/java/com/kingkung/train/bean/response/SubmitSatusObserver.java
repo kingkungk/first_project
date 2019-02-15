@@ -18,6 +18,8 @@ public abstract class SubmitSatusObserver<D extends SubmitStatusData> extends Me
             D data = result.getData();
             if (data.isSubmitStatus()) {
                 success(data);
+            } else {
+                failed(data.getErrMsg());
             }
         } else {
             statusFailed(result.getMessages());

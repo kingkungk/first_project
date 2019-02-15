@@ -127,7 +127,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
     }
 
     @Override
-    public void interval(long initialDelay, long period, final Runnable r) {
+    public Disposable interval(long initialDelay, long period, final Runnable r) {
         Disposable disposable = Observable.interval(initialDelay, period, TimeUnit.MILLISECONDS)
                 .subscribeWith(new DataObserver<Long>(mView) {
                     @Override
@@ -136,6 +136,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                     }
                 });
         addSubscription(disposable);
+        return disposable;
     }
 
     @Override

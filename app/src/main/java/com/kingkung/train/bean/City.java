@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import com.kingkung.train.ui.adapter.CharacterDividedAdapter;
 
+import java.util.Objects;
+
 public class City extends CharacterDividedAdapter.CharacterItem implements Parcelable, Comparable<City> {
     public String abbreviationSpell;
     public String name;
@@ -61,11 +63,24 @@ public class City extends CharacterDividedAdapter.CharacterItem implements Parce
 
     @Override
     public String getCharacter() {
-        return String.valueOf(spell.charAt(0));
+        return String.valueOf(spell.charAt(0)).toUpperCase();
     }
 
     @Override
     public char getSortCharacter() {
         return spell.charAt(0);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        City city = (City) o;
+        return Objects.equals(code, city.code);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(code);
     }
 }

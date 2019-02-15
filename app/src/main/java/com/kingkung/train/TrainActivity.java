@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
+import io.reactivex.disposables.Disposable;
 
 public class TrainActivity extends BaseActivity<TrainPresenter> implements TrainContract.View {
     public static final String TAG = "TrainActivity";
@@ -71,6 +72,8 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     private List<String> sendEmails;
 
     private boolean isStartQuery = true;
+
+    private Disposable queryDisposable;
 
     public enum SeatType {
         HARD_SLEEP("硬卧", "3", "hardSleep"),
@@ -198,7 +201,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
         } else {
             timer = timerTime - curTime;
         }
-        presenter.interval(timer, refreshQueryInterval, new Runnable() {
+        queryDisposable = presenter.interval(timer, refreshQueryInterval, new Runnable() {
             @Override
             public void run() {
                 for (String date : trainDate) {
@@ -295,6 +298,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
 
     @Override
     public void confirmSingleForQueueSuccess(TrainDetails detail) {
+        queryDisposable.dispose();
         textToSpeech.speak("订单排队中，请等待，或者去12306上查看排队订单", TextToSpeech.QUEUE_FLUSH, null);
         presenter.sendEmail(sendEmails, "标题2", "订单排队中");
         presenter.queryOrderWaitTime(detail);

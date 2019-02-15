@@ -23,6 +23,8 @@ public class Urls {
 
     public final static String GET_PASSENGER = "/otn/confirmPassenger/getPassengerDTOs";
 
+    public final static String GET_PASS_CODE_NEW = "/otn/passcodeNew/getPassCodeNew?module=passenger&rand=randp&0.6253143368566529";
+
     public final static String CHECK_ORDER_INFO = "otn/confirmPassenger/checkOrderInfo";
 
     public final static String GET_QUEUE_COUNT = "otn/confirmPassenger/getQueueCount";
@@ -33,7 +35,9 @@ public class Urls {
 
     public final static String RESULT_ORDER_FOR_QUEUE = "otn/confirmPassenger/resultOrderForDcQueue";
 
-    public final static String LOGOUT = "https://kyfw.12306.cn/otn/login/loginOut";
+    public final static String LOGOUT = "otn/login/loginOut";
+
+    public final static String STATIC_NAME = "otn/resources/js/framework/station_name.js";
 
     public final static String INDEX = "https://www.12306.cn/index/";
 

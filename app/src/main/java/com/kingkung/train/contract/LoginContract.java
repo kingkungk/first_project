@@ -12,13 +12,15 @@ public interface LoginContract {
 
         void captchaCheckSuccess();
 
-        void captchaCheckFaild();
+        void captchaCheckFailed(String failedMsg);
 
         void loginSuccess();
 
+        void loginFailed(String failedMsg);
+
         void uamtkSuccess(String newapptk);
 
-        void uamtkFaild();
+        void uamtkFailed(String failedMsg);
 
         void uamauthClientSuccess(String username);
     }

@@ -59,9 +59,9 @@ public abstract class CharacterDividedAdapter extends RecyclerView.Adapter<Recyc
         }
     }
 
-    private static class ItemGroup {
-        private final String mCharacter;
-        private final char mSortCharacter;
+    protected static class ItemGroup {
+        protected final String mCharacter;
+        protected final char mSortCharacter;
         private final List<CharacterItem> mItems = new ArrayList<>();
 
         private int mIndex;
@@ -124,7 +124,7 @@ public abstract class CharacterDividedAdapter extends RecyclerView.Adapter<Recyc
     @Override
     public final int getItemViewType(int position) {
         Pair<ItemGroup, Integer> pair = getGroupAt(position);
-        return pair.second == 0 ? TYPE_CHARACTER : getItemViewTypeForCharacterItem(position);
+        return pair.second == 0 ? TYPE_CHARACTER : getItemViewTypeForCharacterItem(pair);
     }
 
     @NonNull
@@ -258,7 +258,27 @@ public abstract class CharacterDividedAdapter extends RecyclerView.Adapter<Recyc
         return position;
     }
 
-    protected abstract int getItemViewTypeForCharacterItem(int position);
+    public List<String> getCharacter() {
+        List<String> characters = new ArrayList<>();
+        for (ItemGroup group : mGroups) {
+            if (group.mSortCharacter >= 'a' && group.mSortCharacter <= 'z') {
+                characters.add(group.mCharacter);
+            }
+        }
+        return characters;
+    }
+
+    public List<CharacterItem> getCharacterItem() {
+        List<CharacterItem> characterItems = new ArrayList<>();
+        for (ItemGroup group : mGroups) {
+            if (group.mSortCharacter >= 'a' && group.mSortCharacter <= 'z') {
+                characterItems.addAll(group.mItems);
+            }
+        }
+        return characterItems;
+    }
+
+    protected abstract int getItemViewTypeForCharacterItem(Pair<ItemGroup, Integer> pair);
 
     protected abstract RecyclerView.ViewHolder createViewHolderForCharacterItem(ViewGroup parent, int viewType);
 

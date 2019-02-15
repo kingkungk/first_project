@@ -7,6 +7,8 @@ import com.kingkung.train.contract.base.BaseContract;
 
 import java.util.List;
 
+import io.reactivex.disposables.Disposable;
+
 public interface TrainContract {
     interface View extends BaseContract.View {
         void realBack();
@@ -43,7 +45,7 @@ public interface TrainContract {
     interface Presenter extends BaseContract.Presenter<View> {
         void clickBack();
 
-        void interval(long initialDelay, long period, Runnable r);
+        Disposable interval(long initialDelay, long period, Runnable r);
 
         void timer(long delay, Runnable r);
 
