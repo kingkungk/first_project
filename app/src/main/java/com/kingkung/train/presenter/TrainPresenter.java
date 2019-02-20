@@ -70,7 +70,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
     private TrainApi api;
 
     private SimpleDateFormat standardFormat = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss 'GMT+0800' (中国标准时间)", Locale.ENGLISH);
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+    public static SimpleDateFormat trainDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
     private SimpleDateFormat serverDateFormat = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
 
     private SimpleDateFormat logDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
@@ -328,9 +328,9 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                 StringBuilder builder = new StringBuilder();
                 builder.append("secretStr=" + detail.secretStr);
                 builder.append("&");
-                builder.append("train_date=" + dateFormat.format(serverDateFormat.parse(detail.startDate)));
+                builder.append("train_date=" + trainDateFormat.format(serverDateFormat.parse(detail.startDate)));
                 builder.append("&");
-                builder.append("back_train_date=" + dateFormat.format(new Date()));
+                builder.append("back_train_date=" + trainDateFormat.format(new Date()));
                 builder.append("&");
                 builder.append("tour_flag=" + "dc");
                 builder.append("&");
@@ -478,7 +478,11 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                 .subscribeWith(new MessageListObserver<QueueCountData>(mView) {
                     @Override
                     public void success(QueueCountData data) {
-                        mView.getQueueCountSuccess(detail);
+                        if (Boolean.parseBoolean(data.op_2)){
+                            mView.showMsg("没有余票了");
+                        } else {
+                            mView.getQueueCountSuccess(detail);
+                        }
                     }
                 });
         addSubscription(disposable);
@@ -545,17 +549,15 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                             if (!TextUtils.isEmpty(data.orderId)) {
                                 detail.orderId = data.orderId;
                                 mView.queryOrderWaitTimeSuccess(detail);
-                            } else if (!TextUtils.isEmpty(data.msg)) {
-                                mView.failed(data.msg);
+                                return;
                             }
-                        } else {
-                            timer(1000, new Runnable() {
-                                @Override
-                                public void run() {
-                                    queryOrderWaitTime(detail);
-                                }
-                            });
                         }
+                        timer(1000, new Runnable() {
+                            @Override
+                            public void run() {
+                                queryOrderWaitTime(detail);
+                            }
+                        });
                     }
                 });
         addSubscription(disposable);

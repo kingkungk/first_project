@@ -20,6 +20,7 @@ import com.kingkung.train.bean.TrainDetails;
 import com.kingkung.train.contract.ConfigContract;
 import com.kingkung.train.presenter.ConfigPresenter;
 import com.kingkung.train.ui.activity.CitySelectActivity;
+import com.kingkung.train.ui.activity.DateSelectActivity;
 import com.kingkung.train.ui.activity.TrainNoSelectActivity;
 import com.kingkung.train.ui.activity.base.BaseActivity;
 import com.kingkung.train.ui.adapter.EmailAdapter;
@@ -58,6 +59,10 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
     public final static int SELECT_TRAIN_NO_REQUEST_CODE = 20;
     public final static int SELECT_TRAIN_NO_RESULT_CODE = 21;
     public final static String SELECT_TRAIN_NO_KEY = "select_train_no_key";
+
+    public final static int SELECT_TRAIN_DATE_REQUEST_CODE = 30;
+    public final static int SELECT_TRAIN_DATE_RESULT_CODE = 31;
+    public final static String SELECT_TRAIN_DATE_KEY = "select_train_date_key";
 
     public final static String CONFIG_FILE_NAME = "config";
 
@@ -203,6 +208,11 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             config.setTrainDetails(details);
             String trainNosStr = details.toString();
             tvTrainNo.setText(trainNosStr.substring(1, trainNosStr.length() - 1));
+        } else if (resultCode == SELECT_TRAIN_DATE_RESULT_CODE) {
+            List<String> trainDate = data.getStringArrayListExtra(SELECT_TRAIN_DATE_KEY);
+            config.setTrainDates(trainDate);
+            String trainDateStr = trainDate.toString();
+            tvTrainDate.setText(trainDateStr.substring(1, trainDateStr.length() - 1));
         }
     }
 
@@ -212,6 +222,16 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             isQueryPassenger = true;
             presenter.getPassenger();
         }
+    }
+
+    @OnClick(R.id.tv_train_date)
+    public void selectTrainDate() {
+        Intent intent = new Intent(this, DateSelectActivity.class);
+        List<String> trainDates = config.getTrainDates();
+        if (trainDates != null && !trainDates.isEmpty()) {
+            intent.putStringArrayListExtra(DateSelectActivity.CHECKED_TRAIN_DATE_KEY, (ArrayList<String>) trainDates);
+        }
+        startActivityForResult(intent, SELECT_TRAIN_DATE_REQUEST_CODE);
     }
 
     @OnClick(R.id.tv_email)

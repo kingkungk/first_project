@@ -53,14 +53,15 @@ public class TrainNoSelectActivity extends BaseActivity<TrainNoSelectPresenter> 
     protected void create() {
         checkDetails = getIntent().getParcelableArrayListExtra(CHECKED_TRAIN_NO_KEY);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        trainNoSelectAdapter = new TrainNoSelectAdapter();
-        recyclerView.setAdapter(trainNoSelectAdapter);
-
         Intent intent = getIntent();
         String trainDate = intent.getStringExtra(TRAIN_DATE_KEY);
         City fromStation = intent.getParcelableExtra(FROM_STATION_KEY);
         City toStation = intent.getParcelableExtra(TO_STATION_KEY);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        trainNoSelectAdapter = new TrainNoSelectAdapter(fromStation.name, toStation.name);
+        recyclerView.setAdapter(trainNoSelectAdapter);
+
         presenter.queryTrain(trainDate, fromStation.code, toStation.code);
     }
 

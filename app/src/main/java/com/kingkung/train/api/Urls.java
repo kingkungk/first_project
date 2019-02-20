@@ -13,7 +13,7 @@ public class Urls {
 
     public final static String UAMAUTH_CLIENT = "/otn/uamauthclient";
 
-    public final static String QUERY_TRAIN = "/otn/leftTicket/queryZ";
+    public final static String QUERY_TRAIN = "/otn/leftTicket/queryX";
 
     public final static String CHECK_USER = "/otn/login/checkUser";
 

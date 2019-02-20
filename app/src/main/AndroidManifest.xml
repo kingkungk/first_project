@@ -27,6 +27,7 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".TrainActivity" />
         <activity android:name=".ui.activity.CitySelectActivity" />
+        <activity android:name=".ui.activity.DateSelectActivity" />
         <activity android:name=".ui.activity.FailedLogActivity" />
         <activity android:name=".ui.activity.TrainNoSelectActivity" />
     </application>

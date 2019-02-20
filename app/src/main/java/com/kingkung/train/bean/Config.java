@@ -14,7 +14,7 @@ public class Config implements Parcelable {
 
     private List<TrainDetails> trainDetails;
 
-    private List<String> trainDates = Arrays.asList("2019-02-20");
+    private List<String> trainDates;
 
     private int refreshInterval = 3000;
 

@@ -25,7 +25,12 @@ public class TrainNoSelectAdapter extends RecyclerView.Adapter<TrainNoSelectAdap
 
     private List<TrainDetails> showTrainDetailList;
 
-    public TrainNoSelectAdapter() {
+    private String fromStationName;
+    private String toStationName;
+
+    public TrainNoSelectAdapter(String fromStationName, String toStationName) {
+        this.fromStationName = fromStationName;
+        this.toStationName = toStationName;
         trainDetailList = new ArrayList<>();
         showTrainDetailList = new ArrayList<>();
     }
@@ -40,9 +45,9 @@ public class TrainNoSelectAdapter extends RecyclerView.Adapter<TrainNoSelectAdap
     public void onBindViewHolder(@NonNull TrainNoSelectAdapter.ViewHolder viewHolder, int i) {
         TrainDetails detail = showTrainDetailList.get(i);
         viewHolder.tvFromTime.setText(detail.leaveTime);
-        viewHolder.tvFromStation.setText(detail.fromStation);
+        viewHolder.tvFromStation.setText(fromStationName);
         viewHolder.tvToTime.setText(detail.arriveTime);
-        viewHolder.tvToStation.setText(detail.toStation);
+        viewHolder.tvToStation.setText(toStationName);
         viewHolder.tvTrainNo.setText(detail.trainNo);
         viewHolder.tvTime.setText(detail.totalConsume);
 
