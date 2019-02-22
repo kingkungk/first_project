@@ -76,8 +76,7 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
 
                     @Override
                     public void success(Result result) {
-                        int code = Integer.valueOf(result.getResult_code());
-                        if (code == 4) {
+                        if (result.getResult_code() == 4) {
                             mView.captchaCheckSuccess();
                         } else { //5.验证码错误；7.验证码过期；8.验证码为空
                             mView.captchaCheckFailed(result.getResult_message());
@@ -99,8 +98,7 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
                 .subscribeWith(new DataObserver<Result>(mView) {
                     @Override
                     public void success(Result result) {
-                        int code = Integer.parseInt(result.getResult_code());
-                        if (code == 0) {
+                        if (result.getResult_code() == 0) {
                             mView.loginSuccess();
                         } else {
                             mView.loginFailed(result.getResult_message());
@@ -118,8 +116,7 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
                 .subscribeWith(new ResultObserver<UamtkResult>(mView) {
                     @Override
                     public void succeed(UamtkResult uamtkResult) {
-                        int code = Integer.valueOf(uamtkResult.getResult_code());
-                        if (code == 0) {
+                        if (uamtkResult.getResult_code() == 0) {
                             mView.uamtkSuccess(uamtkResult.getNewapptk());
                         } else {  //1.登录验证没通过；7. ；4.用户已在他处登录；3.用户已注销
                             mView.uamtkFailed(uamtkResult.getResult_message());
@@ -139,8 +136,7 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
                 .subscribeWith(new ResultObserver<UserNameResult>(mView) {
                     @Override
                     public void succeed(UserNameResult userNameResult) {
-                        int code = Integer.parseInt(userNameResult.getResult_code());
-                        if (code == 0) {
+                        if (userNameResult.getResult_code() == 0) {
                             mView.uamauthClientSuccess(userNameResult.getUsername());
                         }
                     }

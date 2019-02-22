@@ -1,6 +1,7 @@
 package com.kingkung.train.api;
 
 import com.kingkung.train.bean.CheckOrderData;
+import com.kingkung.train.bean.DataResult;
 import com.kingkung.train.bean.MessageListReslut;
 import com.kingkung.train.bean.MessageReslut;
 import com.kingkung.train.bean.PassengerInfo;
@@ -94,4 +95,8 @@ public interface TrainApi {
     @POST(Urls.QUERY_PASSENGER)
     @FormUrlEncoded
     Observable<MessageListReslut<PassengerInfo.PassengerData>> queryPassenger(@Field("pageIndex") int pageIndex, @Field("pageSize") int pageSize);
+
+    @POST(Urls.BASE_TRAIN_URL + Urls.UPLOAD_CONFIG)
+    @FormUrlEncoded
+    Observable<DataResult<Boolean>> uploadConfig(@FieldMap Map<String, Object> fields);
 }

@@ -3,8 +3,6 @@ package com.kingkung.train.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.kingkung.train.TrainActivity.SeatType;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

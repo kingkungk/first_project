@@ -3,7 +3,6 @@ package com.kingkung.train.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class Config implements Parcelable {
@@ -16,7 +15,7 @@ public class Config implements Parcelable {
 
     private List<String> trainDates;
 
-    private int refreshInterval = 3000;
+    private List<SeatType> seatTypes;
 
     private List<String> emails;
 
@@ -30,7 +29,6 @@ public class Config implements Parcelable {
         passengers = in.createTypedArrayList(PassengerInfo.CREATOR);
         trainDetails = in.createTypedArrayList(TrainDetails.CREATOR);
         trainDates = in.createStringArrayList();
-        refreshInterval = in.readInt();
         emails = in.createStringArrayList();
     }
 
@@ -86,12 +84,12 @@ public class Config implements Parcelable {
         this.trainDates = trainDates;
     }
 
-    public int getRefreshInterval() {
-        return refreshInterval;
+    public List<SeatType> getSeatTypes() {
+        return seatTypes;
     }
 
-    public void setRefreshInterval(int refreshInterval) {
-        this.refreshInterval = refreshInterval;
+    public void setSeatTypes(List<SeatType> seatTypes) {
+        this.seatTypes = seatTypes;
     }
 
     public List<String> getEmails() {
@@ -114,7 +112,6 @@ public class Config implements Parcelable {
         dest.writeTypedList(passengers);
         dest.writeTypedList(trainDetails);
         dest.writeStringList(trainDates);
-        dest.writeInt(refreshInterval);
         dest.writeStringList(emails);
     }
 }

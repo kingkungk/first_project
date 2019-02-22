@@ -22,6 +22,10 @@ import butterknife.OnTouch;
 
 public class LoginActivity extends BaseActivity<LoginPresenter> implements LoginContract.View {
 
+    public final static String USER_SP_KEY = "user";
+    public final static String USER_NAME_KEY = "username";
+    public final static String PASSWORD_KEY = "password";
+
     @BindView(R.id.et_username)
     EditText etUsername;
     @BindView(R.id.et_password)
@@ -55,11 +59,11 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
 
     @Override
     protected void create() {
-        sp = getSharedPreferences("user", Context.MODE_PRIVATE);
+        sp = getSharedPreferences(USER_SP_KEY, Context.MODE_PRIVATE);
         tag = getIntent().getStringExtra(TAG_KEY);
 
-        etUsername.setText(sp.getString("username", ""));
-        etPassword.setText(sp.getString("password", ""));
+        etUsername.setText(sp.getString(USER_NAME_KEY, ""));
+        etPassword.setText(sp.getString(PASSWORD_KEY, ""));
 
         presenter.captcha();
     }

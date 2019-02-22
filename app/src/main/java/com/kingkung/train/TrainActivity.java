@@ -1,6 +1,8 @@
 package com.kingkung.train;
 
 import android.content.Intent;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
@@ -13,6 +15,7 @@ import android.widget.ListView;
 
 import com.kingkung.train.bean.Config;
 import com.kingkung.train.bean.PassengerInfo;
+import com.kingkung.train.bean.SeatType;
 import com.kingkung.train.bean.TrainDetails;
 import com.kingkung.train.contract.TrainContract;
 import com.kingkung.train.presenter.TrainPresenter;
@@ -49,7 +52,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     private TextToSpeech textToSpeech;
 
     //刷新间隔
-    private int refreshQueryInterval;
+    private int refreshQueryInterval = 3000;
     //刷新登录会话
     private int refreshLoginInterval = 1000 * 60 * 5;
     //出发站
@@ -65,7 +68,7 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
     //出发时间段
     private List<Long> startTimeQuantum = new ArrayList<>(2);
     //座位类别,如果为空就不过滤
-    private List<SeatType> seatType = Arrays.asList(SeatType.HARD_SLEEP, SeatType.HARD_SEAT, SeatType.SECOND_CLASS);
+    private List<SeatType> seatType;
     //定时抢票时间
     private long timerTime;
     //接受通知的邮箱
@@ -73,39 +76,8 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
 
     private boolean isStartQuery = true;
 
+    private Disposable backDisposable;
     private Disposable queryDisposable;
-
-    public enum SeatType {
-        HARD_SLEEP("硬卧", "3", "hardSleep"),
-        HARD_SEAT("硬座", "1", "hardSeat"),
-        NO_SEAT("无座", "1", "noSeat"),
-        UPHOLSTERED_SEAT("软座", "2", "softSeat"),
-        SOFT_SLEEP("软卧", "4", "softSleep"),
-        HIGH_SOFT_SLEEP("高级软卧", "6", "advancedSoftSleep"),
-        SECOND_CLASS("二等座", "O", "secondClassSeat"),
-        FIRST_CLASS("一等座", "M", "firstClassSeat"),
-        //        PREMIER_CLASS("特等座", "P", ""),
-        BUSINESS_CLASS("商务座", "9", "businessSeat"),
-        SPEED_SLEEP("动卧", "F", "moveSleep");
-//        HIGH_SPEED_SLEEP("高级动卧", "A", "");
-
-        public String name;
-
-        public String seatType;
-
-        public String field;
-
-        SeatType(String name, String seatType, String field) {
-            this.name = name;
-            this.seatType = seatType;
-            this.field = field;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-    }
 
     @Override
     protected void inject() {
@@ -139,22 +111,19 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
             }
         });
 
-        presenter.interval(0, refreshLoginInterval, new Runnable() {
-            @Override
-            public void run() {
-                presenter.uamtk();
-            }
-        });
+        presenter.interval(0, refreshLoginInterval, () -> presenter.uamtk());
+
+        backDisposable = presenter.listenBackEvent();
     }
 
     public void initConfig(Intent intent) {
-        Config config = intent.getParcelableExtra("config");
+        Config config = intent.getParcelableExtra(ConfigActivity.CONFIG_KEY);
         fromStation = config.getFromCity().code;
         toStation = config.getToCity().code;
         passengers = config.getPassengers();
         trainNo = config.getTrainDetails();
         trainDate = config.getTrainDates();
-        refreshQueryInterval = config.getRefreshInterval();
+        seatType = config.getSeatTypes();
         sendEmails = config.getEmails();
     }
 
@@ -403,19 +372,14 @@ public class TrainActivity extends BaseActivity<TrainPresenter> implements Train
                 initConfig(data);
             }
             presenter.attachView(this);
-            presenter.interval(0, refreshLoginInterval, new Runnable() {
-                @Override
-                public void run() {
-                    presenter.uamtk();
-                }
-            });
-            presenter.listenBackEvent();
+            presenter.interval(0, refreshLoginInterval, () -> presenter.uamtk());
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        backDisposable.dispose();
         textToSpeech.stop();
         textToSpeech.shutdown();
     }

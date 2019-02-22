@@ -2,14 +2,14 @@ package com.kingkung.train.bean;
 
 public class Result {
 
-    private String result_code;
+    private int result_code;
     private String result_message;
 
-    public String getResult_code() {
+    public int getResult_code() {
         return result_code;
     }
 
-    public void setResult_code(String result_code) {
+    public void setResult_code(int result_code) {
         this.result_code = result_code;
     }
 

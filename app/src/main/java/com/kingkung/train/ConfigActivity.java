@@ -3,6 +3,7 @@ package com.kingkung.train;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialog;
@@ -16,6 +17,7 @@ import com.google.gson.Gson;
 import com.kingkung.train.bean.City;
 import com.kingkung.train.bean.Config;
 import com.kingkung.train.bean.PassengerInfo;
+import com.kingkung.train.bean.SeatType;
 import com.kingkung.train.bean.TrainDetails;
 import com.kingkung.train.contract.ConfigContract;
 import com.kingkung.train.presenter.ConfigPresenter;
@@ -25,12 +27,14 @@ import com.kingkung.train.ui.activity.TrainNoSelectActivity;
 import com.kingkung.train.ui.activity.base.BaseActivity;
 import com.kingkung.train.ui.adapter.EmailAdapter;
 import com.kingkung.train.ui.adapter.PassengerAdapter;
+import com.kingkung.train.ui.adapter.SeatTypeAdapter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,6 +49,8 @@ import butterknife.OnClick;
 public class ConfigActivity extends BaseActivity<ConfigPresenter> implements ConfigContract.View {
 
     public final static String TAG = "ConfigActivity";
+
+    public final static String CONFIG_KEY = "config_key";
 
     public final static int FROM_STATION_REQUEST_CODE = 1;
     public final static int TO_STATION_REQUEST_CODE = 2;
@@ -76,8 +82,8 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
     TextView tvTrainDate;
     @BindView(R.id.tv_train_no)
     TextView tvTrainNo;
-    @BindView(R.id.tv_refresh_interval)
-    TextView tvRefreshInterval;
+    @BindView(R.id.tv_seat_type)
+    TextView tvSeatType;
     @BindView(R.id.tv_email)
     TextView tvEmail;
 
@@ -133,8 +139,11 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             tvTrainNo.setText(trainNoStr.substring(1, trainNoStr.length() - 1));
         }
 
-        int refreshInterval = config.getRefreshInterval();
-        tvRefreshInterval.setText(String.valueOf(refreshInterval));
+        List<SeatType> seatTypes = config.getSeatTypes();
+        if (seatTypes != null && !seatTypes.isEmpty()) {
+            String seatTypeStr = seatTypes.toString();
+            tvSeatType.setText(seatTypeStr.substring(1, seatTypeStr.length() - 1));
+        }
 
         List<String> emails = config.getEmails();
         if (emails != null && !emails.isEmpty()) {
@@ -146,10 +155,14 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
     @OnClick(R.id.btn_start)
     public void start() {
         writeConfigJson();
-        Intent intent = new Intent(this, TrainActivity.class);
-        intent.putExtra("config", config);
-        startActivity(intent);
-        finish();
+
+//        Intent intent = new Intent(this, TrainActivity.class);
+//        intent.putExtra(CONFIG_KEY, config);
+//        startActivity(intent);
+//        finish();
+
+        SharedPreferences sp = getSharedPreferences(LoginActivity.USER_SP_KEY, Context.MODE_PRIVATE);
+        presenter.uploadConfig(sp.getString(LoginActivity.USER_NAME_KEY, ""), sp.getString(LoginActivity.PASSWORD_KEY, ""), config);
     }
 
     public void writeConfigJson() {
@@ -189,6 +202,24 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
         }
     }
 
+    @OnClick(R.id.iv_interchange)
+    public void cityInterchange() {
+        City fromCity = config.getFromCity();
+        City toCity = config.getToCity();
+        if (fromCity == null || toCity == null) {
+            return;
+        }
+        config.setFromCity(toCity);
+        config.setToCity(fromCity);
+        tvFromStation.setText(toCity.name);
+        tvToStation.setText(fromCity.name);
+        
+        tvTrainNo.setText(null);
+        tvSeatType.setText(null);
+        config.setTrainDetails(null);
+        config.setSeatTypes(null);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -201,6 +232,9 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
                 tvToStation.setText(city.name);
                 config.setToCity(city);
             }
+            tvTrainNo.setText(null);
+            tvSeatType.setText(null);
+            config.setTrainDetails(null);
         } else if (resultCode == GO_LOGIN_RESULT_CODE) {
             presenter.getPassenger();
         } else if (resultCode == SELECT_TRAIN_NO_RESULT_CODE) {
@@ -208,12 +242,37 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             config.setTrainDetails(details);
             String trainNosStr = details.toString();
             tvTrainNo.setText(trainNosStr.substring(1, trainNosStr.length() - 1));
+
+            showSelectSeatType(details);
         } else if (resultCode == SELECT_TRAIN_DATE_RESULT_CODE) {
             List<String> trainDate = data.getStringArrayListExtra(SELECT_TRAIN_DATE_KEY);
             config.setTrainDates(trainDate);
             String trainDateStr = trainDate.toString();
             tvTrainDate.setText(trainDateStr.substring(1, trainDateStr.length() - 1));
         }
+    }
+
+    private void showSelectSeatType(List<TrainDetails> details) {
+        List<SeatType> seatTypeList = new ArrayList<>();
+        Class c = TrainDetails.class;
+        SeatType[] seatTypes = SeatType.values();
+        for (TrainDetails detail : details) {
+            for (SeatType type : seatTypes) {
+                try {
+                    Field field = c.getField(type.field);
+                    String value = String.valueOf(field.get(detail));
+                    if (!TextUtils.isEmpty(value) && !seatTypeList.contains(type)) {
+                        seatTypeList.add(type);
+                    }
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        SeatTypeHolder seatTypeHolder = new SeatTypeHolder();
+        seatTypeHolder.show(this, seatTypeList);
     }
 
     @OnClick(R.id.tv_passenger_name)
@@ -268,6 +327,16 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
         startActivityForResult(intent, SELECT_TRAIN_NO_REQUEST_CODE);
     }
 
+    @OnClick(R.id.tv_seat_type)
+    public void selectSeatType() {
+        List<TrainDetails> trainDetails = config.getTrainDetails();
+        if (trainDetails == null || trainDetails.isEmpty()) {
+            showMsg("强选择车次");
+            return;
+        }
+        showSelectSeatType(trainDetails);
+    }
+
     @Override
     public void getPassengerSucceed(List<PassengerInfo> passengers) {
         PassengerHolder passengerHolder = new PassengerHolder();
@@ -281,6 +350,11 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
         intent.putExtra(LoginActivity.TAG_KEY, TAG);
         startActivityForResult(intent, GO_LOGIN_REQUEST_CODE);
         isQueryPassenger = false;
+    }
+
+    @Override
+    public void uploadConfigSucceed() {
+
     }
 
     class PassengerHolder {
@@ -304,7 +378,7 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             }
 
             dialog = new BottomSheetDialog(context);
-            View bottomView = getLayoutInflater().inflate(R.layout.passenger_select_dailog, null);
+            View bottomView = getLayoutInflater().inflate(R.layout.passenger_select_dialog, null);
             ButterKnife.bind(this, bottomView);
 
             LinearLayoutManager manager = new LinearLayoutManager(context);
@@ -338,6 +412,50 @@ public class ConfigActivity extends BaseActivity<ConfigPresenter> implements Con
             String checkEmailStr = checkEmails.toString();
             tvEmail.setText(checkEmailStr.substring(1, checkEmailStr.length() - 1));
             config.setEmails(checkEmails);
+
+            dialog.cancel();
+        }
+
+        @OnClick(R.id.btn_cancel)
+        public void cancel() {
+            dialog.cancel();
+        }
+    }
+
+    class SeatTypeHolder {
+
+        @BindView(R.id.recyclerView)
+        RecyclerView recyclerView;
+
+        SeatTypeAdapter seatTypeAdapter;
+
+        Dialog dialog;
+
+        public void show(Context context, List<SeatType> seatTypes) {
+            dialog = new BottomSheetDialog(context);
+            View bottomView = getLayoutInflater().inflate(R.layout.seat_type_select_dialog, null);
+            ButterKnife.bind(this, bottomView);
+
+            LinearLayoutManager manager = new LinearLayoutManager(context);
+            recyclerView.setLayoutManager(manager);
+            seatTypeAdapter = new SeatTypeAdapter(seatTypes);
+            recyclerView.setAdapter(seatTypeAdapter);
+
+            dialog.setContentView(bottomView);
+            dialog.show();
+        }
+
+        @OnClick(R.id.btn_confirm)
+        public void confirm() {
+            List<SeatType> selectSeatTypes = seatTypeAdapter.getSelectSeatTypes();
+            if (selectSeatTypes.isEmpty()) {
+                showMsg("请选择坐席");
+                return;
+            }
+
+            String seatTypeStr = selectSeatTypes.toString();
+            tvSeatType.setText(seatTypeStr.substring(1, seatTypeStr.length() - 1));
+            config.setSeatTypes(selectSeatTypes);
 
             dialog.cancel();
         }

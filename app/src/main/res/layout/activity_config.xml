@@ -74,8 +74,10 @@
                 app:layout_constraintLeft_toLeftOf="@id/tv_to_station" />
 
             <ImageView
+                android:id="@+id/iv_interchange"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:padding="10dp"
                 android:src="@mipmap/from_to"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -212,12 +214,12 @@
                     android:layout_marginTop="15dp"
                     android:layout_marginBottom="15dp"
                     android:layout_weight="1"
-                    android:text="间隔时间"
+                    android:text="抢票坐席"
                     android:textColor="#ff333333"
                     android:textSize="13sp" />
 
                 <TextView
-                    android:id="@+id/tv_refresh_interval"
+                    android:id="@+id/tv_seat_type"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="2"

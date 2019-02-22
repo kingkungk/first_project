@@ -42,4 +42,8 @@ public class Urls {
     public final static String INDEX = "https://www.12306.cn/index/";
 
     public final static String QUERY_PASSENGER = "/otn/passengers/query";
+
+    public final static String BASE_TRAIN_URL = "http://192.168.1.136:8890/";
+
+    public final static String UPLOAD_CONFIG = "train/config";
 }

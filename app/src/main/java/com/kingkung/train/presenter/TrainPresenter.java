@@ -78,11 +78,6 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
     @Inject
     public TrainPresenter(TrainApi api) {
         this.api = api;
-        listenBackEvent();
-    }
-
-    public void listenBackEvent() {
-        listenBackEvent(backSubject);
     }
 
     @Override
@@ -90,8 +85,8 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
         backSubject.onNext(1);
     }
 
-    public void listenBackEvent(Subject<Integer> back) {
-        Disposable disposable = Observable.merge(back, back.debounce(2000, TimeUnit.MILLISECONDS)
+    public Disposable listenBackEvent() {
+        Disposable disposable = Observable.merge(backSubject, backSubject.debounce(2000, TimeUnit.MILLISECONDS)
                 .map(new Function<Integer, Integer>() {
                     @Override
                     public Integer apply(Integer i) throws Exception {
@@ -123,7 +118,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                         }
                     }
                 });
-        addSubscription(disposable);
+        return disposable;
     }
 
     @Override
@@ -184,8 +179,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                 .subscribeWith(new ResultObserver<UserNameResult>(mView) {
                     @Override
                     public void succeed(UserNameResult userNameResult) {
-                        int code = Integer.parseInt(userNameResult.getResult_code());
-                        if (code == 0) {
+                        if (userNameResult.getResult_code() == 0) {
                             mView.uamauthClientSuccess(userNameResult.getUsername());
                         }
                     }
@@ -478,7 +472,7 @@ public class TrainPresenter extends BasePresenter<TrainContract.View> implements
                 .subscribeWith(new MessageListObserver<QueueCountData>(mView) {
                     @Override
                     public void success(QueueCountData data) {
-                        if (Boolean.parseBoolean(data.op_2)){
+                        if (Boolean.parseBoolean(data.op_2)) {
                             mView.showMsg("没有余票了");
                         } else {
                             mView.getQueueCountSuccess(detail);
